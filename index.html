@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Savegame · Vampire Crawlers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #14111f;
+    --panel: #1d1830;
+    --panel-hi: #272043;
+    --line: #4a3f78;
+    --line-soft: #332b52;
+    --text: #efe9ff;
+    --muted: #9d93c4;
+    --gold: #f2c14e;
+    --gold-dark: #b98a1f;
+    --red: #e0605a;
+    --green: #6fd38f;
+    --pix: "Pixelify Sans", "Courier New", ui-monospace, monospace;
+    --body: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    line-height: 1.45;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  button, input, textarea { font: inherit; color: inherit; }
+  [hidden] { display: none !important; }
+
+  .frame {
+    background: var(--panel);
+    box-shadow:
+      0 -2px 0 0 var(--line), 0 2px 0 0 var(--line),
+      -2px 0 0 0 var(--line), 2px 0 0 0 var(--line);
+  }
+
+  .top {
+    border-bottom: 2px solid var(--line-soft);
+    padding: 14px 20px;
+  }
+  .top-in {
+    max-width: 1040px; margin: 0 auto;
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; margin-right: auto; }
+  .brand h1 { font: 700 1.2rem var(--pix); margin: 0; letter-spacing: .02em; }
+  .brand small { color: var(--muted); font-size: .85rem; }
+
+  .btn {
+    font-family: var(--pix);
+    font-weight: 700;
+    font-size: .95rem;
+    background: var(--gold);
+    color: #2a1d05;
+    border: 0;
+    padding: 9px 16px 11px;
+    cursor: pointer;
+    box-shadow: 0 3px 0 0 var(--gold-dark);
+    position: relative;
+  }
+  .btn:hover:not(:disabled) { filter: brightness(1.07); }
+  .btn:active:not(:disabled) { top: 2px; box-shadow: 0 1px 0 0 var(--gold-dark); }
+  .btn.ghost {
+    background: transparent; color: var(--text);
+    box-shadow: 0 0 0 2px var(--line);
+  }
+  .btn.ghost:active:not(:disabled) { top: 0; }
+  .btn:disabled { background: var(--panel-hi); color: var(--muted); box-shadow: none; cursor: not-allowed; }
+  .btn:focus-visible, input:focus-visible, textarea:focus-visible, .tab:focus-visible, .chip:focus-visible {
+    outline: 2px solid var(--gold); outline-offset: 2px;
+  }
+  input[type=file] { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
+  main { flex: 1; width: 100%; max-width: 1040px; margin: 0 auto; padding: 20px 20px 24px; }
+
+  .empty { text-align: center; padding: 56px 20px; margin-top: 24px; }
+  .empty p { margin: 14px 0 20px; color: var(--muted); }
+  .empty .path { font-family: ui-monospace, Consolas, monospace; font-size: .82rem; color: var(--muted); margin-top: 18px; overflow-wrap: anywhere; }
+
+  .fileline { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: baseline; margin-bottom: 14px; }
+  .fileline b { font-family: var(--pix); font-size: 1.05rem; overflow-wrap: anywhere; }
+  .fileline span { color: var(--muted); font-size: .88rem; }
+
+  .tabs { display: flex; gap: 4px; border-bottom: 2px solid var(--line-soft); margin-bottom: 18px; }
+  .tab {
+    background: none; border: 0; cursor: pointer;
+    font-family: var(--pix); font-weight: 700; font-size: 1rem;
+    color: var(--muted);
+    padding: 8px 14px 9px;
+    margin-bottom: -2px;
+    border-bottom: 2px solid transparent;
+  }
+  .tab[aria-selected=true] { color: var(--gold); border-bottom-color: var(--gold); }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; align-items: start; }
+  @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+  .col { display: flex; flex-direction: column; gap: 22px; }
+  .sec { padding: 16px 18px 18px; }
+  .sec h2 { font: 700 1.05rem var(--pix); margin: 0 0 12px; color: var(--gold); }
+  .sec.wide { grid-column: 1 / -1; }
+
+  .coinrow { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .coinrow img, .coinrow .coinfb { width: 40px; height: 40px; image-rendering: pixelated; flex: none; }
+  .coinfb { border-radius: 50%; background: var(--gold); }
+  .coinnum {
+    font: 700 1.9rem var(--pix); color: var(--gold);
+    width: 11ch; max-width: 100%;
+    background: var(--bg); border: 0;
+    box-shadow: 0 0 0 2px var(--line);
+    padding: 4px 10px;
+  }
+  .coinnote { color: var(--muted); font-size: .86rem; margin: 10px 0 0; }
+  .coinnote.warn { color: var(--gold); }
+
+  .party { display: flex; flex-wrap: wrap; gap: 14px; }
+  .who { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 68px; text-align: center; font-size: .8rem; }
+  .who img, .who .fb { width: 48px; height: 48px; image-rendering: pixelated; }
+  .who .fb { display: grid; place-items: center; background: var(--panel-hi); font: 700 1.2rem var(--pix); color: var(--muted); }
+  .who.lead span { color: var(--gold); }
+  .sub { color: var(--muted); font-size: .85rem; margin: 14px 0 8px; }
+  .sub:first-of-type { margin-top: 0; }
+
+  .rows { display: flex; flex-direction: column; }
+  .row {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 7px 0; border-bottom: 1px solid var(--line-soft);
+  }
+  .row:last-child { border-bottom: 0; }
+  .row label, .row .lbl { flex: 1; cursor: pointer; overflow-wrap: anywhere; }
+  .row .val { font-family: var(--pix); font-weight: 700; }
+  .row .ctrl { display: flex; align-items: center; gap: 10px; }
+
+  input[type=checkbox] {
+    appearance: none; -webkit-appearance: none;
+    width: 20px; height: 20px; margin: 0; cursor: pointer; flex: none;
+    background: var(--bg);
+    box-shadow: 0 0 0 2px var(--line);
+    position: relative;
+  }
+  input[type=checkbox]:checked { background: var(--gold); box-shadow: 0 0 0 2px var(--gold-dark); }
+  input[type=checkbox]:checked::after {
+    content: ""; position: absolute; left: 6px; top: 2px; width: 5px; height: 10px;
+    border: solid #2a1d05; border-width: 0 3px 3px 0; transform: rotate(40deg);
+  }
+  .lvl {
+    width: 4.2ch; text-align: center;
+    font-family: var(--pix); font-weight: 700;
+    background: var(--bg); border: 0; box-shadow: 0 0 0 2px var(--line);
+    padding: 2px 4px;
+  }
+  .pu { display: grid; grid-template-columns: 1fr 1fr; column-gap: 28px; }
+  @media (max-width: 760px) { .pu { grid-template-columns: 1fr; } }
+  .pu .row:nth-last-child(2):nth-child(odd) { border-bottom: 0; }
+
+  .jsonbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 10px; }
+  .search {
+    flex: 1 1 220px; min-width: 0;
+    background: var(--bg); border: 0; box-shadow: 0 0 0 2px var(--line);
+    padding: 8px 12px;
+  }
+  .count { color: var(--muted); font-size: .88rem; min-width: 11ch; }
+  .mini { padding: 6px 12px 8px; font-size: .9rem; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; color: var(--muted); font-size: .85rem; }
+  .chip {
+    background: var(--panel-hi); border: 0; cursor: pointer;
+    padding: 3px 10px; font-size: .85rem;
+    box-shadow: 0 0 0 1px var(--line);
+  }
+  .chip:hover { box-shadow: 0 0 0 1px var(--gold); }
+  textarea.json {
+    display: block; width: 100%; height: 62vh; min-height: 320px;
+    resize: vertical; white-space: pre; overflow: auto; tab-size: 2;
+    font-family: ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace;
+    font-size: 13px; line-height: 20px;
+    background: var(--bg); border: 0; padding: 12px;
+    box-shadow: 0 0 0 2px var(--line);
+  }
+  textarea.json::selection { background: var(--gold); color: #2a1d05; }
+
+  .bar {
+    position: sticky; bottom: 0;
+    background: var(--bg);
+    border-top: 2px solid var(--line-soft);
+    padding: 12px 20px;
+  }
+  .bar-in { max-width: 1040px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .state { margin-right: auto; font-size: .92rem; color: var(--muted); }
+  .state.dirty { color: var(--gold); }
+  .state.bad { color: var(--red); }
+  .state.ok { color: var(--green); }
+
+  footer { color: var(--muted); font-size: .76rem; text-align: center; padding: 0 20px 16px; }
+  footer a { color: inherit; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <span id="brandIcon"></span>
+      <div>
+        <h1>Savegame</h1>
+        <small>Vampire Crawlers</small>
+      </div>
+    </div>
+    <label class="btn" id="pickBtn" tabindex="0">
+      Seleccionar archivo
+      <input type="file" id="fileInput">
+    </label>
+  </div>
+</header>
+
+<main>
+  <section class="frame empty" id="empty">
+    <div id="emptyIcon"></div>
+    <p>Elige tu archivo de guardado para ver qué contiene.</p>
+    <div class="path">Windows (Steam): %USERPROFILE%\AppData\LocalLow\Nosebleed Interactive\Vampire Crawlers\Save\SaveProfile0.save</div>
+  </section>
+
+  <div id="app" hidden>
+    <div class="fileline">
+      <b id="fileName"></b>
+      <span id="fileMeta"></span>
+    </div>
+
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tabSum" aria-selected="true">Resumen</button>
+      <button class="tab" role="tab" id="tabJson" aria-selected="false">JSON completo</button>
+    </div>
+
+    <div id="viewSum"></div>
+
+    <div id="viewJson" hidden>
+      <div class="jsonbar">
+        <input class="search" id="q" type="search" placeholder="Buscar en el JSON" autocomplete="off" spellcheck="false">
+        <span class="count" id="qCount"></span>
+        <button class="btn ghost mini" id="qPrev" type="button">Anterior</button>
+        <button class="btn ghost mini" id="qNext" type="button">Siguiente</button>
+      </div>
+      <div class="chips" id="chips"></div>
+      <textarea class="json" id="editor" spellcheck="false" autocomplete="off" aria-label="Contenido completo del archivo"></textarea>
+    </div>
+  </div>
+</main>
+
+<div class="bar" id="bar" hidden>
+  <div class="bar-in">
+    <span class="state" id="state"></span>
+    <button class="btn ghost" id="backupBtn" type="button">Copia del original</button>
+    <button class="btn" id="checksumBtn" type="button" disabled>Hacer checksum</button>
+  </div>
+</div>
+
+<footer>Iconos: <a href="https://vampire.survivors.wiki/w/Crawlers:Wiki" target="_blank" rel="noopener">Vampire Survivors Wiki</a> (CC BY-NC-SA 3.0). Proyecto de fans, sin relación con poncle.</footer>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const ICONS = "https://vampire.survivors.wiki/images/";
+
+  function h(tag, attrs, ...kids) {
+    const el = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (k === "class") el.className = v;
+      else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+      else if (v !== false && v != null) el.setAttribute(k, v === true ? "" : v);
+    }
+    for (const kid of kids.flat()) {
+      if (kid == null || kid === false) continue;
+      el.append(kid.nodeType ? kid : document.createTextNode(kid));
+    }
+    return el;
+  }
+
+  const nice = (key) => String(key)
+    .replace(/^(RelicConfig|PowerUp|FCC|Dungeon|TownBuilding|SimpleAchievement|Card)_/, "")
+    .replace(/_/g, " ")
+    .replace(/([a-z])([A-Z])/g, "$1 $2");
+
+  // Los iconos se cargan de la wiki oficial; si no hay internet se muestra una letra.
+  const ALIAS = { OSole: "O'Sole" };
+
+  function sprite(file, size, fallbackText, cls) {
+    const img = h("img", { src: ICONS + file, width: size, height: size, alt: "", referrerpolicy: "no-referrer", loading: "lazy" });
+    img.style.imageRendering = "pixelated";
+    img.addEventListener("error", () => {
+      const fb = h("div", { class: cls || "fb" }, (fallbackText || "?").slice(0, 1));
+      fb.style.width = fb.style.height = size + "px";
+      img.replaceWith(fb);
+    });
+    return img;
+  }
+  function charSprite(fcc, size) {
+    let name = String(fcc).replace(/^FCC_/, "");
+    name = ALIAS[name] || name;
+    const file = "CSprite-" + encodeURIComponent(name).replace(/'/g, "%27") + ".png";
+    return sprite(file, size, name);
+  }
+  function coinIcon(size) {
+    const img = h("img", { src: ICONS + "CSprite-Gold_Coin.png", width: size, height: size, alt: "", referrerpolicy: "no-referrer" });
+    img.style.imageRendering = "pixelated";
+    img.addEventListener("error", () => {
+      const d = h("div", { class: "coinfb" });
+      d.style.width = d.style.height = size + "px";
+      img.replaceWith(d);
+    });
+    return img;
+  }
+
+  let state = null;
+  let baseline = "";
+  let originalRaw = "";
+  let originalName = "SaveProfile0.save";
+  let badJson = null;
+  let tab = "sum";
+
+  const editor = $("editor");
+  const stateEl = $("state");
+  const checksumBtn = $("checksumBtn");
+
+  $("brandIcon").append(coinIcon(32));
+  $("emptyIcon").append(coinIcon(56));
+
+  function updateBar(flash) {
+    stateEl.className = "state";
+    if (badJson) {
+      stateEl.textContent = "JSON no válido: " + badJson;
+      stateEl.classList.add("bad");
+      checksumBtn.disabled = true;
+      return;
+    }
+    const dirty = JSON.stringify(state) !== baseline;
+    if (flash) {
+      stateEl.textContent = flash;
+      stateEl.classList.add("ok");
+    } else if (dirty) {
+      stateEl.textContent = "Cambios sin checksum";
+      stateEl.classList.add("dirty");
+    } else {
+      stateEl.textContent = "Sin cambios";
+    }
+    checksumBtn.disabled = !dirty;
+  }
+
+  function setTab(t) {
+    if (t === "sum" && tab === "json") {
+      if (badJson) { updateBar(); return; }
+    }
+    tab = t;
+    $("tabSum").setAttribute("aria-selected", t === "sum");
+    $("tabJson").setAttribute("aria-selected", t === "json");
+    $("viewSum").hidden = t !== "sum";
+    $("viewJson").hidden = t !== "json";
+    if (t === "json") {
+      editor.value = JSON.stringify(state, null, 2);
+      badJson = null;
+      buildChips();
+      runSearch();
+    } else {
+      renderSummary();
+    }
+    updateBar();
+  }
+  $("tabSum").addEventListener("click", () => setTab("sum"));
+  $("tabJson").addEventListener("click", () => setTab("json"));
+
+  function toggleRow(label, obj, key, title) {
+    const id = "t" + Math.random().toString(36).slice(2, 9);
+    const cb = h("input", { type: "checkbox", id });
+    cb.checked = !!obj[key];
+    cb.addEventListener("change", () => { obj[key] = cb.checked; updateBar(); });
+    return h("div", { class: "row", title: title || key }, h("label", { for: id }, label), cb);
+  }
+  function kvToggleRow(label, entry) {
+    const id = "t" + Math.random().toString(36).slice(2, 9);
+    const cb = h("input", { type: "checkbox", id });
+    cb.checked = !!entry.Value;
+    cb.addEventListener("change", () => { entry.Value = cb.checked; updateBar(); });
+    return h("div", { class: "row", title: entry.Key }, h("label", { for: id }, label), cb);
+  }
+  function countRow(label, n) {
+    return h("div", { class: "row" }, h("span", { class: "lbl" }, label), h("span", { class: "val" }, String(n)));
+  }
+
+  function fmtTime(s) {
+    const m = /^(?:(\d+)\.)?(\d+):(\d+):(\d+)/.exec(s || "");
+    if (!m) return s || "";
+    const hrs = (+m[1] || 0) * 24 + +m[2];
+    return hrs + " h " + String(m[3]).padStart(2, "0") + " min";
+  }
+  function fmtDate(s) {
+    const d = new Date(s);
+    return isNaN(d) ? (s || "") : d.toLocaleString("es");
+  }
+
+  function renderSummary() {
+    const root = $("viewSum");
+    root.replaceChildren();
+    const D = state && state.Data;
+    if (!D) {
+      root.append(h("p", { class: "sub" }, "Este archivo no tiene la sección «Data». Usa la pestaña JSON completo."));
+      return;
+    }
+    const P = D.ProfileSaveData, R = D.RunMetaSaveData, G = D.ProgressionSaveData;
+    const left = h("div", { class: "col" });
+    const right = h("div", { class: "col" });
+
+    if (P || G) {
+      const input = h("input", { class: "coinnum", type: "number", min: 0, max: 2147483647, step: 1, inputmode: "numeric", "aria-label": "Monedas" });
+      input.value = (G && G.TotalCoins) ?? (P && P.TotalCoins) ?? 0;
+      const note = h("p", { class: "coinnote" });
+      const refreshNote = () => {
+        const a = P && P.TotalCoins, b = G && G.TotalCoins;
+        if (a !== undefined && b !== undefined && a !== b) {
+          note.className = "coinnote warn";
+          note.textContent = "Las dos secciones no coinciden (perfil " + a + ", progresión " + b + "). El juego usa la de progresión.";
+        } else {
+          note.className = "coinnote";
+          note.textContent = "Se guarda igual en perfil y en progresión.";
+        }
+      };
+      const apply = () => {
+        let n = Math.floor(Number(input.value));
+        if (!Number.isFinite(n) || n < 0) n = 0;
+        if (n > 2147483647) n = 2147483647;
+        input.value = n;
+        // Las monedas existen en dos secciones y el juego usa la de progresión: se cambian ambas.
+        if (P) P.TotalCoins = n;
+        if (G) G.TotalCoins = n;
+        refreshNote(); updateBar();
+      };
+      input.addEventListener("change", apply);
+      input.addEventListener("keydown", (e) => { if (e.key === "Enter") apply(); });
+      refreshNote();
+      left.append(h("section", { class: "frame sec" },
+        h("h2", {}, "Monedas"),
+        h("div", { class: "coinrow" }, coinIcon(40), input, h("button", { class: "btn mini", type: "button", onclick: apply }, "Aplicar")),
+        note));
+    }
+
+    const party = (R && R.SelectedPartyFccIds) || [];
+    const bought = ((G && G.CharactersPurchased) || []).filter((e) => e.Value);
+    const sec = h("section", { class: "frame sec" }, h("h2", {}, "Personajes"));
+    if (party.length) {
+      sec.append(h("div", { class: "sub" }, "Grupo actual"));
+      sec.append(h("div", { class: "party" }, party.map((id, i) =>
+        h("div", { class: "who" + (i === 0 ? " lead" : "") }, charSprite(id, 48), h("span", {}, nice(id))))));
+    }
+    sec.append(h("div", { class: "sub" }, "Comprados (" + bought.length + ")"));
+    sec.append(h("div", { class: "party" }, bought.map((e) =>
+      h("div", { class: "who" }, charSprite(e.Key, 48), h("span", {}, nice(e.Key))))));
+    if (R && R.SelectedDungeonID) {
+      sec.append(h("div", { class: "sub" }, "Mazmorra seleccionada: " + nice(R.SelectedDungeonID)));
+    }
+    left.append(sec);
+
+    if (P) {
+      left.append(h("section", { class: "frame sec" }, h("h2", {}, "Partida"),
+        h("div", { class: "rows" },
+          P.PlayTime ? h("div", { class: "row" }, h("span", { class: "lbl" }, "Tiempo jugado"), h("span", { class: "val" }, fmtTime(P.PlayTime))) : null,
+          P.SaveTimeStamp ? h("div", { class: "row" }, h("span", { class: "lbl" }, "Último guardado"), h("span", { class: "val" }, fmtDate(P.SaveTimeStamp))) : null,
+          D.saveSystemVersion ? h("div", { class: "row" }, h("span", { class: "lbl" }, "Versión del guardado"), h("span", { class: "val" }, D.saveSystemVersion)) : null)));
+    }
+
+    const modes = [
+      ["EndlessModeActive", "Modo infinito"],
+      ["HandSizeLimitActive", "Límite de tamaño de mano"],
+      ["HurryModeActive", "Modo apresurado"],
+      ["IsJewellerDisabled", "Joyero desactivado"],
+    ].filter(([k]) => R && k in R);
+    const tuts = [
+      ["IsTutorialComplete", "Tutorial completado"],
+      ["IsWildCardTutorialComplete", "Tutorial de comodines completado"],
+    ].filter(([k]) => G && k in G);
+    if (modes.length || tuts.length) {
+      right.append(h("section", { class: "frame sec" }, h("h2", {}, "Modos y tutoriales"),
+        h("div", { class: "rows" },
+          modes.map(([k, l]) => toggleRow(l, R, k)),
+          tuts.map(([k, l]) => toggleRow(l, G, k)))));
+    }
+
+    const relics = (R && R.EnabledRelics) || [];
+    if (relics.length) {
+      right.append(h("section", { class: "frame sec" }, h("h2", {}, "Reliquias"),
+        h("div", { class: "rows" }, relics.map((e) => kvToggleRow(nice(e.Key), e)))));
+    }
+
+    if (G) {
+      const n = (a) => Array.isArray(a) ? a.length : 0;
+      const nt = (a) => Array.isArray(a) ? a.filter((e) => e.Value).length : 0;
+      right.append(h("section", { class: "frame sec" }, h("h2", {}, "Progreso"),
+        h("div", { class: "rows" },
+          countRow("Logros desbloqueados", nt(G.AchievementsUnlocked)),
+          countRow("Cartas descubiertas", n(G.DiscoveredCards)),
+          countRow("Edificios visitados", nt(G.BuildingsVisited)),
+          countRow("Mazmorras visitadas", nt(G.DungeonsVisited)),
+          countRow("Cartas con ranuras de gema", n(G.CardGemSlots)),
+          G.ChestsSpawned !== undefined ? countRow("Cofres aparecidos", G.ChestsSpawned) : null)));
+    }
+
+    const grid = h("div", { class: "grid" }, left, right);
+    root.append(grid);
+
+    const enabled = (G && G.PowerUpEnabled) || [];
+    const levels = (G && G.PowerUpLevelsUnlocked) || [];
+    if (enabled.length || levels.length) {
+      const keys = [...new Set([...enabled.map((e) => e.Key), ...levels.map((e) => e.Key)])];
+      const rows = keys.map((k) => {
+        const en = enabled.find((e) => e.Key === k);
+        const lv = levels.find((e) => e.Key === k);
+        const ctrl = h("div", { class: "ctrl" });
+        if (lv) {
+          const inp = h("input", { class: "lvl", type: "number", min: 0, step: 1, inputmode: "numeric", "aria-label": "Nivel de " + nice(k) });
+          inp.value = lv.Value;
+          inp.addEventListener("change", () => {
+            let v = Math.floor(Number(inp.value));
+            if (!Number.isFinite(v) || v < 0) v = 0;
+            inp.value = v; lv.Value = v; updateBar();
+          });
+          ctrl.append(inp);
+        }
+        let labelEl;
+        if (en) {
+          const id = "t" + Math.random().toString(36).slice(2, 9);
+          const cb = h("input", { type: "checkbox", id });
+          cb.checked = !!en.Value;
+          cb.addEventListener("change", () => { en.Value = cb.checked; updateBar(); });
+          labelEl = h("label", { for: id }, nice(k));
+          ctrl.append(cb);
+        } else {
+          labelEl = h("span", { class: "lbl" }, nice(k));
+        }
+        return h("div", { class: "row", title: k }, labelEl, ctrl);
+      });
+      root.append(h("section", { class: "frame sec", style: "margin-top:22px" },
+        h("h2", {}, "Mejoras permanentes"),
+        h("div", { class: "sub" }, "Casilla: activada. Número: nivel desbloqueado."),
+        h("div", { class: "rows pu" }, rows)));
+    }
+  }
+
+  const q = $("q"), qCount = $("qCount");
+  let matches = [], mi = -1;
+  const LINE_H = 20;
+
+  function runSearch() {
+    const needle = q.value.toLowerCase();
+    matches = []; mi = -1;
+    if (needle) {
+      const hay = editor.value.toLowerCase();
+      let i = hay.indexOf(needle);
+      while (i !== -1 && matches.length < 20000) {
+        matches.push(i);
+        i = hay.indexOf(needle, i + needle.length);
+      }
+      if (matches.length) mi = 0;
+    }
+    showMatch();
+  }
+  function showMatch() {
+    if (!q.value) { qCount.textContent = ""; return; }
+    if (mi < 0) { qCount.textContent = "Sin resultados"; return; }
+    const pos = matches[mi];
+    const line = editor.value.slice(0, pos).split("\n").length;
+    qCount.textContent = (mi + 1) + " de " + matches.length + " · línea " + line;
+    editor.setSelectionRange(pos, pos + q.value.length);
+    editor.scrollTop = Math.max(0, (line - 1) * LINE_H - editor.clientHeight / 3);
+    editor.scrollLeft = 0;
+  }
+  function step(dir) {
+    if (!matches.length) return;
+    mi = (mi + dir + matches.length) % matches.length;
+    showMatch();
+  }
+  q.addEventListener("input", runSearch);
+  q.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); step(e.shiftKey ? -1 : 1); }
+  });
+  $("qNext").addEventListener("click", () => step(1));
+  $("qPrev").addEventListener("click", () => step(-1));
+
+  function buildChips() {
+    const box = $("chips");
+    box.replaceChildren();
+    const D = state && state.Data;
+    if (!D) return;
+    box.append(h("span", {}, "Ir a:"));
+    Object.keys(D).filter((k) => D[k] && typeof D[k] === "object").forEach((k) => {
+      box.append(h("button", { class: "chip", type: "button", onclick: () => {
+        q.value = '"' + k + '"'; runSearch();
+      } }, k.replace(/SaveData$/, "")));
+    });
+  }
+
+  editor.addEventListener("input", () => {
+    try {
+      state = JSON.parse(editor.value);
+      badJson = null;
+    } catch (e) {
+      badJson = e.message;
+    }
+    updateBar();
+    if (q.value) {
+      runSearch();
+    }
+  });
+
+  $("pickBtn").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); $("fileInput").click(); }
+  });
+
+  $("fileInput").addEventListener("change", () => {
+    const file = $("fileInput").files && $("fileInput").files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onerror = () => alert("No se pudo leer el archivo.");
+    reader.onload = () => {
+      let text = String(reader.result);
+      if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+      let data;
+      try { data = JSON.parse(text); }
+      catch (e) {
+        alert("Este archivo no es un JSON válido, así que no parece un guardado del juego.\n\n" + e.message);
+        return;
+      }
+      originalName = file.name;
+      originalRaw = text;
+      state = data;
+      baseline = JSON.stringify(state);
+      badJson = null;
+      q.value = "";
+
+      $("fileName").textContent = file.name;
+      const parts = [(file.size / 1024).toFixed(1) + " KB"];
+      if (data.Version !== undefined) parts.push("Versión " + data.Version);
+      if (typeof data.Checksum === "string") parts.push(data.Checksum === "" ? "Checksum vacío" : "Con checksum");
+      $("fileMeta").textContent = parts.join(" · ");
+
+      $("empty").hidden = true;
+      $("app").hidden = false;
+      $("bar").hidden = false;
+
+      const lead = data.Data && data.Data.RunMetaSaveData && data.Data.RunMetaSaveData.SelectedPartyFccIds;
+      if (lead && lead[0]) { $("brandIcon").replaceChildren(charSprite(lead[0], 32)); }
+
+      tab = "json";
+      setTab("sum");
+    };
+    reader.readAsText(file);
+    $("fileInput").value = "";
+  });
+
+  function download(name, text) {
+    const url = URL.createObjectURL(new Blob([text], { type: "application/octet-stream" }));
+    const a = h("a", { href: url, download: name });
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  checksumBtn.addEventListener("click", () => {
+    if (badJson || !state || typeof state !== "object" || Array.isArray(state)) return;
+    // El juego acepta el campo Checksum vacío, igual que hace el script original.
+    state.Checksum = "";
+    const out = JSON.stringify(state);
+    download(originalName, out);
+    baseline = out;
+    if (tab === "json") editor.value = JSON.stringify(state, null, 2); else renderSummary();
+    updateBar("Checksum hecho · archivo descargado");
+  });
+
+  $("backupBtn").addEventListener("click", () => {
+    const dot = originalName.lastIndexOf(".");
+    const base = dot > 0 ? originalName.slice(0, dot) : originalName;
+    const ext = dot > 0 ? originalName.slice(dot) : "";
+    download(base + "_Backup_" + Date.now() + ext, originalRaw);
+  });
+})();
+</script>
+</body>
+</html>
