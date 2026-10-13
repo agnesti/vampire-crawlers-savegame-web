@@ -1,6 +1,6 @@
 # Editor de savegame para Vampire Crawlers
 
-[English version](README.English.md)
+[English version](README.md)
 
 Página web para ver y editar el archivo de guardado (`SaveProfile0.save`) de **Vampire Crawlers**. Se abre en el navegador, no hay que instalar nada y **el archivo no se sube a ningún servidor**: todo ocurre en tu equipo.
 
