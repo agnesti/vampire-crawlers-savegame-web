@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Savegame · Vampire Crawlers</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,8 +22,10 @@
     --green: #6fd38f;
     --pix: "Pixelify Sans", "Courier New", ui-monospace, monospace;
     --body: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    --tap: 44px;
   }
   * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
   html, body { margin: 0; }
   body {
     background: var(--bg);
@@ -31,176 +33,235 @@
     font-family: var(--body);
     line-height: 1.45;
     min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
   }
-  button, input, textarea { font: inherit; color: inherit; }
+  button, input, textarea, select { font: inherit; color: inherit; }
   [hidden] { display: none !important; }
+  code { font-family: ui-monospace, Consolas, monospace; font-size: .9em; }
 
   .frame {
     background: var(--panel);
-    box-shadow:
-      0 -2px 0 0 var(--line), 0 2px 0 0 var(--line),
-      -2px 0 0 0 var(--line), 2px 0 0 0 var(--line);
+    box-shadow: 0 -2px 0 0 var(--line), 0 2px 0 0 var(--line), -2px 0 0 0 var(--line), 2px 0 0 0 var(--line);
   }
 
-  .top {
-    border-bottom: 2px solid var(--line-soft);
-    padding: 14px 20px;
-  }
-  .top-in {
-    max-width: 1040px; margin: 0 auto;
-    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
-  }
-  .brand { display: flex; align-items: center; gap: 10px; margin-right: auto; }
-  .brand h1 { font: 700 1.2rem var(--pix); margin: 0; letter-spacing: .02em; }
+  .top { border-bottom: 2px solid var(--line-soft); padding: 12px max(16px, env(safe-area-inset-right)) 12px max(16px, env(safe-area-inset-left)); padding-top: max(12px, env(safe-area-inset-top)); }
+  .top-in { max-width: 1008px; margin: 0 auto; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 10px; margin-right: auto; min-width: 0; }
+  .brand h1 { font: 700 1.2rem var(--pix); margin: 0; line-height: 1.1; }
   .brand small { color: var(--muted); font-size: .85rem; }
 
   .btn {
-    font-family: var(--pix);
-    font-weight: 700;
-    font-size: .95rem;
-    background: var(--gold);
-    color: #2a1d05;
-    border: 0;
-    padding: 9px 16px 11px;
-    cursor: pointer;
+    font-family: var(--pix); font-weight: 700; font-size: .95rem;
+    background: var(--gold); color: #2a1d05;
+    border: 0; padding: 0 16px; min-height: var(--tap);
+    display: inline-flex; align-items: center; justify-content: center; text-align: center;
+    cursor: pointer; position: relative;
     box-shadow: 0 3px 0 0 var(--gold-dark);
-    position: relative;
+    -webkit-tap-highlight-color: transparent;
   }
   .btn:hover:not(:disabled) { filter: brightness(1.07); }
   .btn:active:not(:disabled) { top: 2px; box-shadow: 0 1px 0 0 var(--gold-dark); }
-  .btn.ghost {
-    background: transparent; color: var(--text);
-    box-shadow: 0 0 0 2px var(--line);
-  }
+  .btn.ghost { background: transparent; color: var(--text); box-shadow: 0 0 0 2px var(--line); }
   .btn.ghost:active:not(:disabled) { top: 0; }
+  .btn.small { min-height: 36px; padding: 0 12px; font-size: .88rem; }
   .btn:disabled { background: var(--panel-hi); color: var(--muted); box-shadow: none; cursor: not-allowed; }
-  .btn:focus-visible, input:focus-visible, textarea:focus-visible, .tab:focus-visible, .chip:focus-visible {
+  .btn:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, .tab:focus-visible, .chip:focus-visible, .tile:focus-visible {
     outline: 2px solid var(--gold); outline-offset: 2px;
   }
   input[type=file] { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 
-  main { flex: 1; width: 100%; max-width: 1040px; margin: 0 auto; padding: 20px 20px 24px; }
+  main { flex: 1; width: 100%; max-width: 1040px; margin: 0 auto; padding: 18px max(16px, env(safe-area-inset-right)) 24px max(16px, env(safe-area-inset-left)); min-width: 0; }
 
-  .empty { text-align: center; padding: 56px 20px; margin-top: 24px; }
-  .empty p { margin: 14px 0 20px; color: var(--muted); }
-  .empty .path { font-family: ui-monospace, Consolas, monospace; font-size: .82rem; color: var(--muted); margin-top: 18px; overflow-wrap: anywhere; }
+  .empty { text-align: center; padding: 48px 20px; margin-top: 8px; }
+  .empty p { margin: 14px 0 6px; color: var(--muted); }
+  .empty .path { font-family: ui-monospace, Consolas, monospace; font-size: .78rem; color: var(--muted); margin-top: 16px; overflow-wrap: anywhere; }
 
-  .fileline { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: baseline; margin-bottom: 14px; }
+  .fileline { display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: baseline; margin-bottom: 12px; }
   .fileline b { font-family: var(--pix); font-size: 1.05rem; overflow-wrap: anywhere; }
   .fileline span { color: var(--muted); font-size: .88rem; }
 
-  .tabs { display: flex; gap: 4px; border-bottom: 2px solid var(--line-soft); margin-bottom: 18px; }
+  .tabs { display: flex; gap: 2px; border-bottom: 2px solid var(--line-soft); margin-bottom: 18px; overflow-x: auto; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
   .tab {
-    background: none; border: 0; cursor: pointer;
-    font-family: var(--pix); font-weight: 700; font-size: 1rem;
-    color: var(--muted);
-    padding: 8px 14px 9px;
-    margin-bottom: -2px;
-    border-bottom: 2px solid transparent;
+    background: none; border: 0; cursor: pointer; flex: none;
+    font-family: var(--pix); font-weight: 700; font-size: 1rem; color: var(--muted);
+    padding: 0 14px; min-height: var(--tap);
+    margin-bottom: -2px; border-bottom: 2px solid transparent; white-space: nowrap;
   }
   .tab[aria-selected=true] { color: var(--gold); border-bottom-color: var(--gold); }
 
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; align-items: start; }
-  @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
-  .col { display: flex; flex-direction: column; gap: 22px; }
-  .sec { padding: 16px 18px 18px; }
-  .sec h2 { font: 700 1.05rem var(--pix); margin: 0 0 12px; color: var(--gold); }
-  .sec.wide { grid-column: 1 / -1; }
+  .notice { border-left: 4px solid var(--gold); background: var(--panel-hi); padding: 10px 14px; margin-bottom: 18px; font-size: .92rem; }
 
-  .coinrow { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px; align-items: start; }
+  .col { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+  .sec { padding: 16px 18px 18px; min-width: 0; }
+  .sec h2 { font: 700 1.05rem var(--pix); margin: 0 0 12px; color: var(--gold); }
+  .sec h2 small { font: 500 .8rem var(--body); color: var(--muted); margin-left: 6px; }
+
+  .coinrow { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   .coinrow img, .coinrow .coinfb { width: 40px; height: 40px; image-rendering: pixelated; flex: none; }
   .coinfb { border-radius: 50%; background: var(--gold); }
   .coinnum {
     font: 700 1.9rem var(--pix); color: var(--gold);
-    width: 11ch; max-width: 100%;
-    background: var(--bg); border: 0;
-    box-shadow: 0 0 0 2px var(--line);
+    width: 11ch; max-width: 100%; min-width: 0;
+    background: var(--bg); border: 0; box-shadow: 0 0 0 2px var(--line);
     padding: 4px 10px;
   }
   .coinnote { color: var(--muted); font-size: .86rem; margin: 10px 0 0; }
   .coinnote.warn { color: var(--gold); }
 
-  .party { display: flex; flex-wrap: wrap; gap: 14px; }
+  .party { display: flex; flex-wrap: wrap; gap: 12px; }
   .who { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 68px; text-align: center; font-size: .8rem; }
   .who img, .who .fb { width: 48px; height: 48px; image-rendering: pixelated; }
-  .who .fb { display: grid; place-items: center; background: var(--panel-hi); font: 700 1.2rem var(--pix); color: var(--muted); }
+  .who .fb, .tile .fb { display: grid; place-items: center; background: var(--panel-hi); font: 700 1.2rem var(--pix); color: var(--muted); }
   .who.lead span { color: var(--gold); }
   .sub { color: var(--muted); font-size: .85rem; margin: 14px 0 8px; }
-  .sub:first-of-type { margin-top: 0; }
+  .sub:first-child { margin-top: 0; }
+
+  .roster { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 10px; }
+  .tile {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    background: var(--bg); border: 0; padding: 8px 4px 6px; cursor: pointer;
+    box-shadow: 0 0 0 2px var(--line-soft); min-height: var(--tap);
+    font-size: .78rem; text-align: center; overflow-wrap: anywhere; line-height: 1.15;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tile img, .tile .fb { width: 40px; height: 40px; image-rendering: pixelated; opacity: .35; filter: grayscale(1); }
+  .tile span { color: var(--muted); }
+  .tile[aria-pressed=true] { box-shadow: 0 0 0 2px var(--gold); background: var(--panel-hi); }
+  .tile[aria-pressed=true] img, .tile[aria-pressed=true] .fb { opacity: 1; filter: none; }
+  .tile[aria-pressed=true] span { color: var(--text); }
 
   .rows { display: flex; flex-direction: column; }
   .row {
     display: flex; align-items: center; justify-content: space-between; gap: 12px;
-    padding: 7px 0; border-bottom: 1px solid var(--line-soft);
+    padding: 6px 0; min-height: var(--tap); border-bottom: 1px solid var(--line-soft);
   }
   .row:last-child { border-bottom: 0; }
-  .row label, .row .lbl { flex: 1; cursor: pointer; overflow-wrap: anywhere; }
-  .row .val { font-family: var(--pix); font-weight: 700; }
+  .row label, .row .lbl { flex: 1; cursor: pointer; overflow-wrap: anywhere; min-width: 0; }
+  .row .val { font-family: var(--pix); font-weight: 700; text-align: right; }
   .row .ctrl { display: flex; align-items: center; gap: 10px; }
 
   input[type=checkbox] {
     appearance: none; -webkit-appearance: none;
-    width: 20px; height: 20px; margin: 0; cursor: pointer; flex: none;
-    background: var(--bg);
-    box-shadow: 0 0 0 2px var(--line);
-    position: relative;
+    width: 22px; height: 22px; margin: 0; cursor: pointer; flex: none;
+    background: var(--bg); box-shadow: 0 0 0 2px var(--line); position: relative;
   }
   input[type=checkbox]:checked { background: var(--gold); box-shadow: 0 0 0 2px var(--gold-dark); }
   input[type=checkbox]:checked::after {
-    content: ""; position: absolute; left: 6px; top: 2px; width: 5px; height: 10px;
+    content: ""; position: absolute; left: 7px; top: 3px; width: 5px; height: 10px;
     border: solid #2a1d05; border-width: 0 3px 3px 0; transform: rotate(40deg);
   }
   .lvl {
-    width: 4.2ch; text-align: center;
-    font-family: var(--pix); font-weight: 700;
-    background: var(--bg); border: 0; box-shadow: 0 0 0 2px var(--line);
-    padding: 2px 4px;
+    width: 4.4ch; text-align: center; font-family: var(--pix); font-weight: 700;
+    background: var(--bg); border: 0; box-shadow: 0 0 0 2px var(--line); padding: 4px;
   }
-  .pu { display: grid; grid-template-columns: 1fr 1fr; column-gap: 28px; }
-  @media (max-width: 760px) { .pu { grid-template-columns: 1fr; } }
-  .pu .row:nth-last-child(2):nth-child(odd) { border-bottom: 0; }
+  select {
+    background: var(--bg); border: 0; box-shadow: 0 0 0 2px var(--line);
+    padding: 8px 10px; min-height: 40px; max-width: 100%; width: 100%;
+  }
+  .pu { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 28px; }
+
+  .dtable { margin-top: 10px; }
+  .drow { display: grid; grid-template-columns: minmax(0, 1fr) 76px 96px; align-items: center; gap: 8px; padding: 4px 0; min-height: 40px; border-bottom: 1px solid var(--line-soft); }
+  .drow:last-child { border-bottom: 0; }
+  .drow.head { color: var(--muted); font-size: .78rem; min-height: 28px; }
+  .drow input[type=checkbox] { justify-self: center; }
+  .drow .dn { overflow-wrap: anywhere; }
 
   .jsonbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 10px; }
-  .search {
-    flex: 1 1 220px; min-width: 0;
-    background: var(--bg); border: 0; box-shadow: 0 0 0 2px var(--line);
-    padding: 8px 12px;
-  }
-  .count { color: var(--muted); font-size: .88rem; min-width: 11ch; }
-  .mini { padding: 6px 12px 8px; font-size: .9rem; }
+  .search { flex: 1 1 200px; min-width: 0; background: var(--bg); border: 0; box-shadow: 0 0 0 2px var(--line); padding: 0 12px; min-height: var(--tap); }
+  .count { color: var(--muted); font-size: .88rem; flex: 1 1 100%; order: 3; }
   .chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; color: var(--muted); font-size: .85rem; }
-  .chip {
-    background: var(--panel-hi); border: 0; cursor: pointer;
-    padding: 3px 10px; font-size: .85rem;
-    box-shadow: 0 0 0 1px var(--line);
-  }
+  .chip { background: var(--panel-hi); border: 0; cursor: pointer; padding: 6px 12px; font-size: .85rem; box-shadow: 0 0 0 1px var(--line); }
   .chip:hover { box-shadow: 0 0 0 1px var(--gold); }
-  textarea.json {
-    display: block; width: 100%; height: 62vh; min-height: 320px;
-    resize: vertical; white-space: pre; overflow: auto; tab-size: 2;
+  .editwrap { position: relative; background: var(--bg); box-shadow: 0 0 0 2px var(--line); }
+  textarea.json, .backdrop, .ruler {
     font-family: ui-monospace, "Cascadia Mono", Consolas, Menlo, monospace;
-    font-size: 13px; line-height: 20px;
-    background: var(--bg); border: 0; padding: 12px;
-    box-shadow: 0 0 0 2px var(--line);
+    font-size: 13px; line-height: 20px; letter-spacing: normal; word-spacing: normal;
+    white-space: pre; tab-size: 2; padding: 12px; margin: 0; border: 0;
+  }
+  textarea.json {
+    display: block; position: relative; z-index: 1; width: 100%;
+    height: 62vh; height: 62dvh; min-height: 300px;
+    resize: vertical; overflow: auto; background: transparent; color: var(--text);
   }
   textarea.json::selection { background: var(--gold); color: #2a1d05; }
+  .ruler { position: absolute; left: 0; top: 0; visibility: hidden; padding: 0; }
+  .backdrop { position: absolute; inset: 0; overflow: hidden; pointer-events: none; color: transparent; padding-bottom: 44px; }
+  .backdrop mark { background: rgba(242, 193, 78, .22); color: transparent; border-radius: 2px; }
+  .backdrop mark.cur { background: rgba(242, 193, 78, .5); box-shadow: 0 0 0 2px var(--gold); }
+
+  .cmpintro { color: var(--muted); font-size: .92rem; margin: 0 0 14px; }
+  .cmpgrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; margin-bottom: 14px; }
+  .pick { padding: 14px 16px 16px; }
+  .pick h2 { font: 700 1rem var(--pix); color: var(--gold); margin: 0 0 10px; }
+  .pick .name { font-weight: 600; overflow-wrap: anywhere; margin: 10px 0 2px; }
+  .pick .meta { color: var(--muted); font-size: .85rem; }
+  .pick .meta.bad { color: var(--red); }
+  .pick .acts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .cmpbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 18px; }
+  .hint { color: var(--gold); font-size: .88rem; }
+  .diff { display: flex; flex-direction: column; gap: 12px; }
+  details.dsec { background: var(--panel); box-shadow: 0 0 0 2px var(--line-soft); }
+  details.dsec > summary { cursor: pointer; padding: 0 14px; min-height: var(--tap); display: flex; align-items: center; gap: 10px; font-family: var(--pix); font-weight: 700; list-style: none; }
+  details.dsec > summary::-webkit-details-marker { display: none; }
+  details.dsec > summary::before { content: "+"; color: var(--gold); width: 1ch; }
+  details.dsec[open] > summary::before { content: "−"; }
+  details.dsec > summary .n { margin-left: auto; color: var(--muted); font: 500 .82rem var(--body); }
+  .dbody { padding: 4px 14px 12px; font-size: .92rem; }
+  .dline { padding: 4px 0; border-bottom: 1px solid var(--line-soft); overflow-wrap: anywhere; }
+  .dline:last-child { border-bottom: 0; }
+  .d-add { color: var(--green); } .d-del { color: var(--red); } .d-chg { color: var(--gold); }
+  .dline .arr { color: var(--muted); }
+  .scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table.mt { border-collapse: collapse; width: 100%; font-size: .85rem; }
+  table.mt th { text-align: left; color: var(--muted); font-weight: 500; padding: 4px 8px 6px 0; }
+  table.mt td { padding: 4px 8px 4px 0; border-top: 1px solid var(--line-soft); font-variant-numeric: tabular-nums; }
+  table.mt td:first-child { overflow-wrap: anywhere; min-width: 160px; }
+  table.mt td.num, table.mt th.num { text-align: right; white-space: nowrap; }
+  .mfilter { margin-bottom: 10px; }
+  .none { color: var(--muted); padding: 16px 0; }
 
   .bar {
-    position: sticky; bottom: 0;
-    background: var(--bg);
-    border-top: 2px solid var(--line-soft);
-    padding: 12px 20px;
+    position: sticky; bottom: 0; z-index: 5;
+    background: var(--bg); border-top: 2px solid var(--line-soft);
+    padding: 10px max(16px, env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
   }
-  .bar-in { max-width: 1040px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
-  .state { margin-right: auto; font-size: .92rem; color: var(--muted); }
+  .bar-in { max-width: 1008px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 10px 12px; align-items: center; }
+  .state { margin-right: auto; font-size: .92rem; color: var(--muted); min-width: 0; overflow-wrap: anywhere; }
   .state.dirty { color: var(--gold); }
   .state.bad { color: var(--red); }
   .state.ok { color: var(--green); }
 
   footer { color: var(--muted); font-size: .76rem; text-align: center; padding: 0 20px 16px; }
   footer a { color: inherit; }
+
+  @media (max-width: 760px) {
+    .grid, .cmpgrid, .pu { grid-template-columns: minmax(0, 1fr); }
+    .col, .grid { gap: 18px; }
+    .sec { padding: 14px; }
+    input, select, textarea.json { font-size: 16px; }
+    textarea.json { font-size: 13px; height: 56dvh; }
+    .bar-in .btn { min-width: 0; }
+    #checksumBtn { flex: 1.6 1 0; }
+    .coinnum { font-size: 1.6rem; flex: 1 1 8ch; width: auto; }
+    .bar-in .state { flex: 1 1 100%; }
+    .bar-in .btn { flex: 1 1 0; font-size: .85rem; padding: 0 8px; }
+    .jsonbar .search { flex: 1 1 100%; }
+    .jsonbar .btn { flex: 1 1 0; }
+    #pickBtn { font-size: .85rem; padding: 0 12px; }
+    .drow { grid-template-columns: minmax(0, 1fr) 60px 76px; gap: 6px; }
+    .brand h1 { font-size: 1.05rem; }
+  }
+  @media (max-width: 420px) {
+    .brand small { display: none; }
+    .roster { grid-template-columns: repeat(auto-fill, minmax(74px, 1fr)); gap: 8px; }
+    main { padding-top: 14px; }
+  }
 </style>
 </head>
 <body>
@@ -222,41 +283,46 @@
 </header>
 
 <main>
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tabSum" aria-selected="true">Resumen</button>
+    <button class="tab" role="tab" id="tabJson" aria-selected="false">JSON completo</button>
+    <button class="tab" role="tab" id="tabCmp" aria-selected="false">Comparar</button>
+  </div>
+
   <section class="frame empty" id="empty">
     <div id="emptyIcon"></div>
     <p>Elige tu archivo de guardado para ver qué contiene.</p>
     <div class="path">Windows (Steam): %USERPROFILE%\AppData\LocalLow\Nosebleed Interactive\Vampire Crawlers\Save\SaveProfile0.save</div>
   </section>
 
-  <div id="app" hidden>
-    <div class="fileline">
-      <b id="fileName"></b>
-      <span id="fileMeta"></span>
+  <div class="fileline" id="fileline" hidden>
+    <b id="fileName"></b>
+    <span id="fileMeta"></span>
+  </div>
+
+  <div id="viewSum" hidden></div>
+
+  <div id="viewJson" hidden>
+    <div class="jsonbar">
+      <input class="search" id="q" type="search" placeholder="Buscar en el JSON" autocomplete="off" spellcheck="false">
+      <button class="btn ghost small" id="qPrev" type="button">Anterior</button>
+      <button class="btn ghost small" id="qNext" type="button">Siguiente</button>
+      <span class="count" id="qCount"></span>
     </div>
-
-    <div class="tabs" role="tablist">
-      <button class="tab" role="tab" id="tabSum" aria-selected="true">Resumen</button>
-      <button class="tab" role="tab" id="tabJson" aria-selected="false">JSON completo</button>
-    </div>
-
-    <div id="viewSum"></div>
-
-    <div id="viewJson" hidden>
-      <div class="jsonbar">
-        <input class="search" id="q" type="search" placeholder="Buscar en el JSON" autocomplete="off" spellcheck="false">
-        <span class="count" id="qCount"></span>
-        <button class="btn ghost mini" id="qPrev" type="button">Anterior</button>
-        <button class="btn ghost mini" id="qNext" type="button">Siguiente</button>
-      </div>
-      <div class="chips" id="chips"></div>
+    <div class="chips" id="chips"></div>
+    <div class="editwrap">
+      <div class="backdrop" id="backdrop" aria-hidden="true"></div>
       <textarea class="json" id="editor" spellcheck="false" autocomplete="off" aria-label="Contenido completo del archivo"></textarea>
     </div>
   </div>
+
+  <div id="viewCmp" hidden></div>
 </main>
 
 <div class="bar" id="bar" hidden>
   <div class="bar-in">
     <span class="state" id="state"></span>
+    <button class="btn ghost" id="resetBtn" type="button" disabled>Restablecer</button>
     <button class="btn ghost" id="backupBtn" type="button">Copia del original</button>
     <button class="btn" id="checksumBtn" type="button" disabled>Hacer checksum</button>
   </div>
@@ -266,8 +332,173 @@
 
 <script>
 (() => {
+class RawNum {
+  constructor(raw) { this.raw = raw; }
+  valueOf() { return Number(this.raw); }
+  toString() { return this.raw; }
+}
+
+function parseJSON(text) {
+  let i = 0;
+  const n = text.length;
+  const NUM = /-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/y;
+  function fail(msg) {
+    let line = 1, col = 1;
+    for (let k = 0; k < i && k < n; k++) { if (text[k] === "\n") { line++; col = 1; } else col++; }
+    throw new SyntaxError(msg + " (línea " + line + ", columna " + col + ")");
+  }
+  function ws() {
+    while (i < n) {
+      const c = text.charCodeAt(i);
+      if (c === 32 || c === 10 || c === 13 || c === 9) i++; else break;
+    }
+  }
+  function str() {
+    const start = i++;
+    while (i < n) {
+      const c = text[i];
+      if (c === "\\") i += 2;
+      else if (c === '"') { i++; return JSON.parse(text.slice(start, i)); }
+      else i++;
+    }
+    fail("Texto sin cerrar");
+  }
+  function value() {
+    ws();
+    const c = text[i];
+    if (c === "{") {
+      i++;
+      const o = Object.create(null);
+      ws();
+      if (text[i] === "}") { i++; return o; }
+      for (;;) {
+        ws();
+        if (text[i] !== '"') fail("Se esperaba un nombre entre comillas");
+        const k = str();
+        ws();
+        if (text[i] !== ":") fail("Falta «:»");
+        i++;
+        o[k] = value();
+        ws();
+        if (text[i] === ",") { i++; continue; }
+        if (text[i] === "}") { i++; return o; }
+        fail("Se esperaba «,» o «}»");
+      }
+    }
+    if (c === "[") {
+      i++;
+      const a = [];
+      ws();
+      if (text[i] === "]") { i++; return a; }
+      for (;;) {
+        a.push(value());
+        ws();
+        if (text[i] === ",") { i++; continue; }
+        if (text[i] === "]") { i++; return a; }
+        fail("Se esperaba «,» o «]»");
+      }
+    }
+    if (c === '"') return str();
+    if (c === "-" || (c >= "0" && c <= "9")) {
+      NUM.lastIndex = i;
+      const m = NUM.exec(text);
+      if (!m) fail("Número no válido");
+      i += m[0].length;
+      const raw = m[0];
+      if (/[.eE]/.test(raw) || !Number.isSafeInteger(Number(raw))) return new RawNum(raw);
+      return Number(raw);
+    }
+    if (text.startsWith("true", i)) { i += 4; return true; }
+    if (text.startsWith("false", i)) { i += 5; return false; }
+    if (text.startsWith("null", i)) { i += 4; return null; }
+    fail(i >= n ? "El texto termina antes de tiempo" : "Carácter inesperado");
+  }
+  const v = value();
+  ws();
+  if (i < n) fail("Hay texto de más al final");
+  return v;
+}
+
+function ser(v, ind) {
+  ind = ind || "";
+  if (v === null) return "null";
+  switch (typeof v) {
+    case "boolean": return v ? "true" : "false";
+    case "number": return Number.isFinite(v) ? String(v) : "null";
+    case "string": return JSON.stringify(v);
+  }
+  if (v instanceof RawNum) return v.raw;
+  const inner = ind + "  ";
+  if (Array.isArray(v)) {
+    if (!v.length) return "[]";
+    return "[\n" + v.map((x) => inner + ser(x, inner)).join(",\n") + "\n" + ind + "]";
+  }
+  const ks = Object.keys(v);
+  if (!ks.length) return "{}";
+  return "{\n" + ks.map((k) => inner + JSON.stringify(k) + ": " + ser(v[k], inner)).join(",\n") + "\n" + ind + "}";
+}
+
+function sha1(bytes) {
+  const l = bytes.length;
+  const total = ((l + 9 + 63) >> 6) << 6;
+  const buf = new Uint8Array(total);
+  buf.set(bytes);
+  buf[l] = 0x80;
+  const dv = new DataView(buf.buffer);
+  dv.setUint32(total - 8, Math.floor(l / 0x20000000));
+  dv.setUint32(total - 4, (l << 3) >>> 0);
+  let h0 = 0x67452301, h1 = 0xEFCDAB89, h2 = 0x98BADCFE, h3 = 0x10325476, h4 = 0xC3D2E1F0;
+  const w = new Uint32Array(80);
+  for (let o = 0; o < total; o += 64) {
+    for (let t = 0; t < 16; t++) w[t] = dv.getUint32(o + t * 4);
+    for (let t = 16; t < 80; t++) { const x = w[t - 3] ^ w[t - 8] ^ w[t - 14] ^ w[t - 16]; w[t] = (x << 1) | (x >>> 31); }
+    let a = h0, b = h1, c = h2, d = h3, e = h4;
+    for (let t = 0; t < 80; t++) {
+      let f, k;
+      if (t < 20) { f = (b & c) | (~b & d); k = 0x5A827999; }
+      else if (t < 40) { f = b ^ c ^ d; k = 0x6ED9EBA1; }
+      else if (t < 60) { f = (b & c) | (b & d) | (c & d); k = 0x8F1BBCDC; }
+      else { f = b ^ c ^ d; k = 0xCA62C1D6; }
+      const tmp = ((((a << 5) | (a >>> 27)) + f + e + k + w[t]) >>> 0);
+      e = d; d = c; c = ((b << 30) | (b >>> 2)) >>> 0; b = a; a = tmp;
+    }
+    h0 = (h0 + a) >>> 0; h1 = (h1 + b) >>> 0; h2 = (h2 + c) >>> 0; h3 = (h3 + d) >>> 0; h4 = (h4 + e) >>> 0;
+  }
+  const out = new Uint8Array(20), ov = new DataView(out.buffer);
+  [h0, h1, h2, h3, h4].forEach((h, k) => ov.setUint32(k * 4, h));
+  return out;
+}
+
+function checksumOf(data) {
+  const bytes = new TextEncoder().encode(ser(data).replace(/\n/g, "\r\n"));
+  return btoa(String.fromCharCode(...sha1(bytes)));
+}
+
   const $ = (id) => document.getElementById(id);
   const ICONS = "https://vampire.survivors.wiki/images/";
+
+  // Personajes y mazmorras conocidos a partir de guardados reales (el juego puede tener más).
+  const CHARACTERS = ["Antonio", "Imelda", "Pasqualina", "Gennaro", "Arca", "Porta", "Lama", "Poe", "Dommario", "Krochi",
+    "Christine", "Pugnala", "Poppea", "Concetta", "Cavallo", "OSole", "Mortaccio", "Ramba", "Clerici", "Giovanna", "Gallo"];
+  const ALIAS = { OSole: "O'Sole" };
+  const DUNGEONS = [
+    { id: "Madforest", ach: "MadForest", name: "Mad Forest", n: 3 },
+    { id: "InlaidLibrary", ach: "InlaidLibrary", name: "Inlaid Library", n: 3 },
+    { id: "DairyPlant", ach: "DairyPlant", name: "Dairy Plant", n: 3 },
+    { id: "TinyBridge", ach: "TinyBridge", name: "Tiny Bridge", n: 3 },
+    { id: "CappellaMagna", ach: "CappellaMagna", name: "Cappella Magna", n: 2 },
+    { id: "GalloTower", ach: "GalloTower", name: "Gallo Tower", n: 1 },
+  ];
+  const LABELS = {
+    AchievementsUnlocked: "Logros", CharactersPurchased: "Personajes comprados", DiscoveredCards: "Cartas descubiertas",
+    DungeonsVisited: "Mazmorras visitadas", BuildingsVisited: "Edificios visitados", PowerUpLevelsUnlocked: "Niveles de mejoras",
+    PowerUpEnabled: "Mejoras activadas", CardGemSlots: "Ranuras de gemas", GemFrequencies: "Frecuencia de gemas",
+    UnlockedGemRarities: "Rarezas de gemas", EnabledRelics: "Reliquias", SelectedPartyFccIds: "Grupo",
+    ActiveArcanasIds: "Arcanas activas", EquippedArcanaIds: "Arcanas equipadas", SealedGems: "Gemas selladas",
+    PreviouslySealedGems: "Gemas selladas antes", TotalCoins: "Monedas", PlayTime: "Tiempo jugado",
+    SaveTimeStamp: "Fecha de guardado", CurrentState: "Estado", ChestsSpawned: "Cofres aparecidos",
+    SelectedDungeonID: "Mazmorra seleccionada", saveSystemVersion: "Versión del guardado",
+  };
 
   function h(tag, attrs, ...kids) {
     const el = document.createElement(tag);
@@ -284,16 +515,19 @@
   }
 
   const nice = (key) => String(key)
-    .replace(/^(RelicConfig|PowerUp|FCC|Dungeon|TownBuilding|SimpleAchievement|Card)_/, "")
+    .replace(/^(RelicConfig|PowerUp|FCC|Dungeon|TownBuilding|SimpleAchievement|Card|ArcanaConfig|GemConfig|DungeonAchievement|MetricAchievement|EndRunAchievement)_/, "")
     .replace(/_/g, " ")
     .replace(/([a-z])([A-Z])/g, "$1 $2");
-
-  // Los iconos se cargan de la wiki oficial; si no hay internet se muestra una letra.
-  const ALIAS = { OSole: "O'Sole" };
+  const charName = (id) => { const n = String(id).replace(/^FCC_/, ""); return ALIAS[n] || nice(n); };
+  const dungeonName = (id) => {
+    const m = /^Dungeon_(.+)_(\d+)$/.exec(id);
+    const d = m && DUNGEONS.find((x) => x.id === m[1]);
+    return d ? d.name + " " + Number(m[2]) : nice(id);
+  };
+  const isKV = (a) => Array.isArray(a) && a.length > 0 && a[0] && typeof a[0] === "object" && "Key" in a[0];
 
   function sprite(file, size, fallbackText, cls) {
     const img = h("img", { src: ICONS + file, width: size, height: size, alt: "", referrerpolicy: "no-referrer", loading: "lazy" });
-    img.style.imageRendering = "pixelated";
     img.addEventListener("error", () => {
       const fb = h("div", { class: cls || "fb" }, (fallbackText || "?").slice(0, 1));
       fb.style.width = fb.style.height = size + "px";
@@ -304,12 +538,10 @@
   function charSprite(fcc, size) {
     let name = String(fcc).replace(/^FCC_/, "");
     name = ALIAS[name] || name;
-    const file = "CSprite-" + encodeURIComponent(name).replace(/'/g, "%27") + ".png";
-    return sprite(file, size, name);
+    return sprite("CSprite-" + encodeURIComponent(name).replace(/'/g, "%27") + ".png", size, name);
   }
   function coinIcon(size) {
     const img = h("img", { src: ICONS + "CSprite-Gold_Coin.png", width: size, height: size, alt: "", referrerpolicy: "no-referrer" });
-    img.style.imageRendering = "pixelated";
     img.addEventListener("error", () => {
       const d = h("div", { class: "coinfb" });
       d.style.width = d.style.height = size + "px";
@@ -318,69 +550,120 @@
     return img;
   }
 
-  let state = null;
-  let baseline = "";
-  let originalRaw = "";
-  let originalName = "SaveProfile0.save";
-  let badJson = null;
-  let tab = "sum";
+  function getFlag(list, key) { const e = list.find((x) => x.Key === key); return !!(e && e.Value); }
+  function setFlag(list, key, on, removeOff) {
+    const i = list.findIndex((x) => x.Key === key);
+    if (on) { if (i >= 0) list[i].Value = true; else list.push({ Key: key, Value: true }); }
+    else if (i >= 0) { if (removeOff) list.splice(i, 1); else list[i].Value = false; }
+  }
+  function ensureList(obj, key) { if (!Array.isArray(obj[key])) obj[key] = []; return obj[key]; }
 
-  const editor = $("editor");
-  const stateEl = $("state");
-  const checksumBtn = $("checksumBtn");
+  function fmtTime(s) {
+    const m = /^(?:(\d+)\.)?(\d+):(\d+):(\d+)/.exec(s || "");
+    if (!m) return s || "";
+    return ((+m[1] || 0) * 24 + +m[2]) + " h " + String(m[3]).padStart(2, "0") + " min";
+  }
+  function fmtDate(s) { const d = new Date(s); return isNaN(d) ? (s || "") : d.toLocaleString("es"); }
+  const STATE_TXT = { 2: "Sin partida en curso", 3: "Partida en curso" };
+  const stateTxt = (n) => (STATE_TXT[n] || "Estado desconocido") + " (" + n + ")";
 
+  // Campo solo numérico: teclado de números en el móvil, ignora letras y aplica el valor mientras se escribe.
+  function numField(cls, value, max, label, onValue) {
+    let last = value;
+    const el = h("input", { class: cls, type: "text", inputmode: "numeric", pattern: "[0-9]*", autocomplete: "off", enterkeyhint: "done", "aria-label": label });
+    el.value = String(value);
+    el.addEventListener("input", () => {
+      const clean = el.value.replace(/\D/g, "");
+      if (clean !== el.value) el.value = clean;
+      if (clean === "") return;
+      last = Math.min(Number(clean), max);
+      onValue(last);
+    });
+    el.addEventListener("blur", () => { el.value = String(last); });
+    el.addEventListener("keydown", (e) => { if (e.key === "Enter") el.blur(); });
+    return el;
+  }
+
+  /* ---------- estado ---------- */
+  let state = null, baseline = "", eol = "\n", originalRaw = "", originalName = "SaveProfile0.save";
+  let badJson = null, tab = "sum", csKind = "none", origSer = "", fileKB = "";
+
+  const editor = $("editor"), stateEl = $("state"), checksumBtn = $("checksumBtn"), resetBtn = $("resetBtn");
   $("brandIcon").append(coinIcon(32));
   $("emptyIcon").append(coinIcon(56));
 
+  function readText(file) {
+    return new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onerror = () => rej(new Error("No se pudo leer el archivo."));
+      r.onload = () => { let t = String(r.result); if (t.charCodeAt(0) === 0xFEFF) t = t.slice(1); res(t); };
+      r.readAsText(file);
+    });
+  }
+
+  function checksumKind(root) {
+    if (!root || !root.Data || typeof root.Data !== "object") return "none";
+    const cs = root.Checksum;
+    if (cs === undefined || cs === "") return "empty";
+    return cs === checksumOf(root.Data) ? "valid" : "mismatch";
+  }
+  const CS_TXT = { valid: "Checksum válido", empty: "Checksum vacío", mismatch: "Checksum no coincide", none: "" };
+
+  /* ---------- barra de acciones ---------- */
   function updateBar(flash) {
+    const show = !!state && tab !== "cmp";
+    $("bar").hidden = !show;
+    if (!show) return;
     stateEl.className = "state";
     if (badJson) {
       stateEl.textContent = "JSON no válido: " + badJson;
       stateEl.classList.add("bad");
       checksumBtn.disabled = true;
+      resetBtn.disabled = false;
       return;
     }
-    const dirty = JSON.stringify(state) !== baseline;
-    if (flash) {
-      stateEl.textContent = flash;
-      stateEl.classList.add("ok");
-    } else if (dirty) {
-      stateEl.textContent = "Cambios sin checksum";
-      stateEl.classList.add("dirty");
-    } else {
-      stateEl.textContent = "Sin cambios";
-    }
+    const cur = ser(state);
+    const dirty = cur !== baseline;
+    resetBtn.disabled = cur === origSer;
+    if (flash) { stateEl.textContent = flash; stateEl.classList.add("ok"); }
+    else if (dirty) { stateEl.textContent = "Cambios sin checksum"; stateEl.classList.add("dirty"); }
+    else { stateEl.textContent = "Sin cambios"; }
     checksumBtn.disabled = !dirty;
   }
 
+  function setMeta() {
+    const parts = [fileKB + " KB"];
+    if (state.Version !== undefined) parts.push("Versión " + state.Version);
+    if (CS_TXT[csKind]) parts.push(CS_TXT[csKind]);
+    $("fileMeta").textContent = parts.join(" · ");
+  }
+
+  /* ---------- pestañas ---------- */
   function setTab(t) {
-    if (t === "sum" && tab === "json") {
-      if (badJson) { updateBar(); return; }
-    }
+    if (tab === "json" && t !== "json" && badJson) { updateBar(); return; }
     tab = t;
-    $("tabSum").setAttribute("aria-selected", t === "sum");
-    $("tabJson").setAttribute("aria-selected", t === "json");
-    $("viewSum").hidden = t !== "sum";
-    $("viewJson").hidden = t !== "json";
-    if (t === "json") {
-      editor.value = JSON.stringify(state, null, 2);
-      badJson = null;
-      buildChips();
-      runSearch();
-    } else {
-      renderSummary();
-    }
+    for (const [id, key] of [["tabSum", "sum"], ["tabJson", "json"], ["tabCmp", "cmp"]]) $(id).setAttribute("aria-selected", t === key);
+    $("viewSum").hidden = t !== "sum" || !state;
+    $("viewJson").hidden = t !== "json" || !state;
+    $("viewCmp").hidden = t !== "cmp";
+    $("empty").hidden = t === "cmp" || !!state;
+    $("fileline").hidden = !state || t === "cmp";
+    if (state && t === "json") { editor.value = ser(state); badJson = null; buildChips(); runSearch(); }
+    if (state && t === "sum") renderSummary();
+    if (t === "cmp") renderCompare();
     updateBar();
   }
   $("tabSum").addEventListener("click", () => setTab("sum"));
   $("tabJson").addEventListener("click", () => setTab("json"));
+  $("tabCmp").addEventListener("click", () => setTab("cmp"));
 
-  function toggleRow(label, obj, key, title) {
+  /* ---------- resumen ---------- */
+  function toggleRow(label, obj, key) {
     const id = "t" + Math.random().toString(36).slice(2, 9);
     const cb = h("input", { type: "checkbox", id });
     cb.checked = !!obj[key];
     cb.addEventListener("change", () => { obj[key] = cb.checked; updateBar(); });
-    return h("div", { class: "row", title: title || key }, h("label", { for: id }, label), cb);
+    return h("div", { class: "row", title: key }, h("label", { for: id }, label), cb);
   }
   function kvToggleRow(label, entry) {
     const id = "t" + Math.random().toString(36).slice(2, 9);
@@ -389,113 +672,133 @@
     cb.addEventListener("change", () => { entry.Value = cb.checked; updateBar(); });
     return h("div", { class: "row", title: entry.Key }, h("label", { for: id }, label), cb);
   }
-  function countRow(label, n) {
-    return h("div", { class: "row" }, h("span", { class: "lbl" }, label), h("span", { class: "val" }, String(n)));
-  }
-
-  function fmtTime(s) {
-    const m = /^(?:(\d+)\.)?(\d+):(\d+):(\d+)/.exec(s || "");
-    if (!m) return s || "";
-    const hrs = (+m[1] || 0) * 24 + +m[2];
-    return hrs + " h " + String(m[3]).padStart(2, "0") + " min";
-  }
-  function fmtDate(s) {
-    const d = new Date(s);
-    return isNaN(d) ? (s || "") : d.toLocaleString("es");
-  }
+  const countRow = (label, n) => h("div", { class: "row" }, h("span", { class: "lbl" }, label), h("span", { class: "val" }, String(n)));
 
   function renderSummary() {
     const root = $("viewSum");
     root.replaceChildren();
     const D = state && state.Data;
-    if (!D) {
+    if (!D || typeof D !== "object") {
       root.append(h("p", { class: "sub" }, "Este archivo no tiene la sección «Data». Usa la pestaña JSON completo."));
       return;
     }
     const P = D.ProfileSaveData, R = D.RunMetaSaveData, G = D.ProgressionSaveData;
-    const left = h("div", { class: "col" });
-    const right = h("div", { class: "col" });
+    if (P && P.CurrentState === 3) {
+      root.append(h("div", { class: "notice" },
+        "Este guardado es de una partida en curso (estado 3). Para editar con más seguridad usa uno tomado desde el menú principal (estado 2), y prueba siempre en una copia."));
+    }
+    const left = h("div", { class: "col" }), right = h("div", { class: "col" });
 
+    /* monedas: existen en dos secciones y el juego usa la de progresión */
     if (P || G) {
-      const input = h("input", { class: "coinnum", type: "number", min: 0, max: 2147483647, step: 1, inputmode: "numeric", "aria-label": "Monedas" });
-      input.value = (G && G.TotalCoins) ?? (P && P.TotalCoins) ?? 0;
       const note = h("p", { class: "coinnote" });
       const refreshNote = () => {
         const a = P && P.TotalCoins, b = G && G.TotalCoins;
         if (a !== undefined && b !== undefined && a !== b) {
           note.className = "coinnote warn";
           note.textContent = "Las dos secciones no coinciden (perfil " + a + ", progresión " + b + "). El juego usa la de progresión.";
-        } else {
-          note.className = "coinnote";
-          note.textContent = "Se guarda igual en perfil y en progresión.";
-        }
+        } else { note.className = "coinnote"; note.textContent = "Se guarda igual en perfil y en progresión."; }
       };
-      const apply = () => {
-        let n = Math.floor(Number(input.value));
-        if (!Number.isFinite(n) || n < 0) n = 0;
-        if (n > 2147483647) n = 2147483647;
-        input.value = n;
-        // Las monedas existen en dos secciones y el juego usa la de progresión: se cambian ambas.
+      const input = numField("coinnum", Number((G && G.TotalCoins) ?? (P && P.TotalCoins) ?? 0), 2147483647, "Monedas", (n) => {
         if (P) P.TotalCoins = n;
         if (G) G.TotalCoins = n;
         refreshNote(); updateBar();
-      };
-      input.addEventListener("change", apply);
-      input.addEventListener("keydown", (e) => { if (e.key === "Enter") apply(); });
+      });
       refreshNote();
-      left.append(h("section", { class: "frame sec" },
-        h("h2", {}, "Monedas"),
-        h("div", { class: "coinrow" }, coinIcon(40), input, h("button", { class: "btn mini", type: "button", onclick: apply }, "Aplicar")),
-        note));
+      left.append(h("section", { class: "frame sec" }, h("h2", {}, "Monedas"),
+        h("div", { class: "coinrow" }, coinIcon(40), input), note));
     }
 
-    const party = (R && R.SelectedPartyFccIds) || [];
-    const bought = ((G && G.CharactersPurchased) || []).filter((e) => e.Value);
-    const sec = h("section", { class: "frame sec" }, h("h2", {}, "Personajes"));
+    /* personajes */
+    const party = (R && Array.isArray(R.SelectedPartyFccIds)) ? R.SelectedPartyFccIds : [];
+    const sec = h("section", { class: "frame sec" });
+    const secTitle = h("h2", {});
+    sec.append(secTitle);
     if (party.length) {
       sec.append(h("div", { class: "sub" }, "Grupo actual"));
       sec.append(h("div", { class: "party" }, party.map((id, i) =>
-        h("div", { class: "who" + (i === 0 ? " lead" : "") }, charSprite(id, 48), h("span", {}, nice(id))))));
+        h("div", { class: "who" + (i === 0 ? " lead" : "") }, charSprite(id, 48), h("span", {}, charName(id))))));
     }
-    sec.append(h("div", { class: "sub" }, "Comprados (" + bought.length + ")"));
-    sec.append(h("div", { class: "party" }, bought.map((e) =>
-      h("div", { class: "who" }, charSprite(e.Key, 48), h("span", {}, nice(e.Key))))));
-    if (R && R.SelectedDungeonID) {
-      sec.append(h("div", { class: "sub" }, "Mazmorra seleccionada: " + nice(R.SelectedDungeonID)));
-    }
+    if (G) {
+      const owned = ensureList(G, "CharactersPurchased");
+      const ids = [...CHARACTERS.map((n) => "FCC_" + n)];
+      owned.forEach((e) => { if (!ids.includes(e.Key)) ids.push(e.Key); });
+      const updateTitle = () => {
+        const n = owned.filter((e) => e.Value).length;
+        secTitle.replaceChildren("Personajes", h("small", {}, n + " de " + ids.length));
+      };
+      updateTitle();
+      sec.append(h("div", { class: "sub" }, "Toca un personaje para comprarlo o quitarlo"));
+      sec.append(h("div", { class: "roster" }, ids.map((id) => {
+        const tile = h("button", { class: "tile", type: "button", title: id, "aria-pressed": String(getFlag(owned, id)) },
+          charSprite(id, 40), h("span", {}, charName(id)));
+        tile.addEventListener("click", () => {
+          const on = tile.getAttribute("aria-pressed") !== "true";
+          setFlag(owned, id, on, true);
+          tile.setAttribute("aria-pressed", on);
+          updateTitle(); updateBar();
+        });
+        return tile;
+      })));
+    } else secTitle.textContent = "Personajes";
     left.append(sec);
+
+    /* mazmorras */
+    if (G) {
+      const visited = ensureList(G, "DungeonsVisited");
+      const ach = ensureList(G, "AchievementsUnlocked");
+      const known = [];
+      DUNGEONS.forEach((d) => { for (let i = 1; i <= d.n; i++) { const n = String(i).padStart(2, "0"); known.push({ id: "Dungeon_" + d.id + "_" + n, ach: "DungeonAchievement_Unlock_" + d.ach + "_" + n }); } });
+      visited.forEach((e) => { if (!known.some((k) => k.id === e.Key)) known.push({ id: e.Key, ach: null }); });
+      const dsec = h("section", { class: "frame sec" }, h("h2", {}, "Mazmorras"));
+      if (R && "SelectedDungeonID" in R) {
+        const sel = h("select", { "aria-label": "Mazmorra seleccionada" });
+        const opts = known.map((k) => k.id);
+        if (!opts.includes(R.SelectedDungeonID)) opts.unshift(R.SelectedDungeonID);
+        opts.forEach((id) => sel.append(h("option", { value: id }, dungeonName(id))));
+        sel.value = R.SelectedDungeonID;
+        sel.addEventListener("change", () => { R.SelectedDungeonID = sel.value; updateBar(); });
+        dsec.append(h("div", { class: "sub" }, "Seleccionada"), sel);
+      }
+      const table = h("div", { class: "dtable" },
+        h("div", { class: "drow head" }, h("span", {}, "Mazmorra"), h("span", { style: "text-align:center" }, "Visitada"), h("span", { style: "text-align:center" }, "Desbloqueo*")));
+      known.forEach((k) => {
+        const v = h("input", { type: "checkbox", "aria-label": "Visitada: " + dungeonName(k.id) });
+        v.checked = getFlag(visited, k.id);
+        v.addEventListener("change", () => { setFlag(visited, k.id, v.checked, true); updateBar(); });
+        let u = h("span", {});
+        if (k.ach) {
+          u = h("input", { type: "checkbox", "aria-label": "Desbloqueada: " + dungeonName(k.id) });
+          u.checked = getFlag(ach, k.ach);
+          u.addEventListener("change", () => { setFlag(ach, k.ach, u.checked, true); updateBar(); });
+        }
+        table.append(h("div", { class: "drow", title: k.id }, h("span", { class: "dn" }, dungeonName(k.id)), v, u));
+      });
+      dsec.append(table, h("p", { class: "coinnote" }, "*Experimental: marca el logro «Unlock» de cada mazmorra, que parece abrirla. No está comprobado; prueba en una copia."));
+      left.append(dsec);
+    }
 
     if (P) {
       left.append(h("section", { class: "frame sec" }, h("h2", {}, "Partida"),
         h("div", { class: "rows" },
           P.PlayTime ? h("div", { class: "row" }, h("span", { class: "lbl" }, "Tiempo jugado"), h("span", { class: "val" }, fmtTime(P.PlayTime))) : null,
           P.SaveTimeStamp ? h("div", { class: "row" }, h("span", { class: "lbl" }, "Último guardado"), h("span", { class: "val" }, fmtDate(P.SaveTimeStamp))) : null,
+          P.CurrentState !== undefined ? h("div", { class: "row" }, h("span", { class: "lbl" }, "Estado"), h("span", { class: "val" }, stateTxt(P.CurrentState))) : null,
           D.saveSystemVersion ? h("div", { class: "row" }, h("span", { class: "lbl" }, "Versión del guardado"), h("span", { class: "val" }, D.saveSystemVersion)) : null)));
     }
 
-    const modes = [
-      ["EndlessModeActive", "Modo infinito"],
-      ["HandSizeLimitActive", "Límite de tamaño de mano"],
-      ["HurryModeActive", "Modo apresurado"],
-      ["IsJewellerDisabled", "Joyero desactivado"],
-    ].filter(([k]) => R && k in R);
-    const tuts = [
-      ["IsTutorialComplete", "Tutorial completado"],
-      ["IsWildCardTutorialComplete", "Tutorial de comodines completado"],
-    ].filter(([k]) => G && k in G);
+    /* modos, reliquias, progreso */
+    const modes = [["EndlessModeActive", "Modo infinito"], ["HandSizeLimitActive", "Límite de tamaño de mano"], ["HurryModeActive", "Modo apresurado"], ["IsJewellerDisabled", "Joyero desactivado"]].filter(([k]) => R && k in R);
+    const tuts = [["IsTutorialComplete", "Tutorial completado"], ["IsWildCardTutorialComplete", "Tutorial de comodines completado"]].filter(([k]) => G && k in G);
     if (modes.length || tuts.length) {
       right.append(h("section", { class: "frame sec" }, h("h2", {}, "Modos y tutoriales"),
-        h("div", { class: "rows" },
-          modes.map(([k, l]) => toggleRow(l, R, k)),
-          tuts.map(([k, l]) => toggleRow(l, G, k)))));
+        h("div", { class: "rows" }, modes.map(([k, l]) => toggleRow(l, R, k)), tuts.map(([k, l]) => toggleRow(l, G, k)))));
     }
-
     const relics = (R && R.EnabledRelics) || [];
     if (relics.length) {
       right.append(h("section", { class: "frame sec" }, h("h2", {}, "Reliquias"),
         h("div", { class: "rows" }, relics.map((e) => kvToggleRow(nice(e.Key), e)))));
     }
-
     if (G) {
       const n = (a) => Array.isArray(a) ? a.length : 0;
       const nt = (a) => Array.isArray(a) ? a.filter((e) => e.Value).length : 0;
@@ -504,31 +807,20 @@
           countRow("Logros desbloqueados", nt(G.AchievementsUnlocked)),
           countRow("Cartas descubiertas", n(G.DiscoveredCards)),
           countRow("Edificios visitados", nt(G.BuildingsVisited)),
-          countRow("Mazmorras visitadas", nt(G.DungeonsVisited)),
           countRow("Cartas con ranuras de gema", n(G.CardGemSlots)),
-          G.ChestsSpawned !== undefined ? countRow("Cofres aparecidos", G.ChestsSpawned) : null)));
+          G.ChestsSpawned !== undefined ? countRow("Cofres aparecidos", String(G.ChestsSpawned)) : null)));
     }
+    root.append(h("div", { class: "grid" }, left, right));
 
-    const grid = h("div", { class: "grid" }, left, right);
-    root.append(grid);
-
-    const enabled = (G && G.PowerUpEnabled) || [];
-    const levels = (G && G.PowerUpLevelsUnlocked) || [];
+    /* mejoras permanentes */
+    const enabled = (G && G.PowerUpEnabled) || [], levels = (G && G.PowerUpLevelsUnlocked) || [];
     if (enabled.length || levels.length) {
       const keys = [...new Set([...enabled.map((e) => e.Key), ...levels.map((e) => e.Key)])];
       const rows = keys.map((k) => {
-        const en = enabled.find((e) => e.Key === k);
-        const lv = levels.find((e) => e.Key === k);
+        const en = enabled.find((e) => e.Key === k), lv = levels.find((e) => e.Key === k);
         const ctrl = h("div", { class: "ctrl" });
         if (lv) {
-          const inp = h("input", { class: "lvl", type: "number", min: 0, step: 1, inputmode: "numeric", "aria-label": "Nivel de " + nice(k) });
-          inp.value = lv.Value;
-          inp.addEventListener("change", () => {
-            let v = Math.floor(Number(inp.value));
-            if (!Number.isFinite(v) || v < 0) v = 0;
-            inp.value = v; lv.Value = v; updateBar();
-          });
-          ctrl.append(inp);
+          ctrl.append(numField("lvl", Number(lv.Value), 99, "Nivel de " + nice(k), (v) => { lv.Value = v; updateBar(); }));
         }
         let labelEl;
         if (en) {
@@ -538,21 +830,40 @@
           cb.addEventListener("change", () => { en.Value = cb.checked; updateBar(); });
           labelEl = h("label", { for: id }, nice(k));
           ctrl.append(cb);
-        } else {
-          labelEl = h("span", { class: "lbl" }, nice(k));
-        }
+        } else labelEl = h("span", { class: "lbl" }, nice(k));
         return h("div", { class: "row", title: k }, labelEl, ctrl);
       });
-      root.append(h("section", { class: "frame sec", style: "margin-top:22px" },
-        h("h2", {}, "Mejoras permanentes"),
-        h("div", { class: "sub" }, "Casilla: activada. Número: nivel desbloqueado."),
-        h("div", { class: "rows pu" }, rows)));
+      root.append(h("section", { class: "frame sec", style: "margin-top:22px" }, h("h2", {}, "Mejoras permanentes"),
+        h("div", { class: "sub" }, "Casilla: activada. Número: nivel desbloqueado."), h("div", { class: "rows pu" }, rows)));
     }
   }
 
+  /* ---------- JSON completo ---------- */
   const q = $("q"), qCount = $("qCount");
   let matches = [], mi = -1;
   const LINE_H = 20;
+
+  const backdrop = $("backdrop");
+  const ruler = h("span", { class: "ruler", "aria-hidden": "true" }, "0000000000");
+  $("editor").parentNode.append(ruler);
+  let cw = 0;
+  const charW = () => cw || (cw = ruler.getBoundingClientRect().width / 10 || 7.8);
+  const esc = (t) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+  function paint() {
+    if (!q.value || mi < 0) { backdrop.textContent = ""; return; }
+    // Se resaltan como mucho 800 coincidencias alrededor de la actual para no ralentizar archivos grandes.
+    const t = editor.value, len = q.value.length;
+    const lo = Math.max(0, Math.min(mi - 400, matches.length - 800)), hi = Math.min(matches.length, lo + 800);
+    let html = "", last = 0;
+    for (let k = lo; k < hi; k++) {
+      html += esc(t.slice(last, matches[k])) + '<mark' + (k === mi ? ' class="cur"' : "") + ">" + esc(t.substr(matches[k], len)) + "</mark>";
+      last = matches[k] + len;
+    }
+    backdrop.innerHTML = html + esc(t.slice(last));
+    backdrop.scrollTop = editor.scrollTop; backdrop.scrollLeft = editor.scrollLeft;
+  }
+  editor.addEventListener("scroll", () => { backdrop.scrollTop = editor.scrollTop; backdrop.scrollLeft = editor.scrollLeft; });
 
   function runSearch() {
     const needle = q.value.toLowerCase();
@@ -560,33 +871,28 @@
     if (needle) {
       const hay = editor.value.toLowerCase();
       let i = hay.indexOf(needle);
-      while (i !== -1 && matches.length < 20000) {
-        matches.push(i);
-        i = hay.indexOf(needle, i + needle.length);
-      }
+      while (i !== -1 && matches.length < 20000) { matches.push(i); i = hay.indexOf(needle, i + needle.length); }
       if (matches.length) mi = 0;
     }
     showMatch();
   }
   function showMatch() {
+    paint();
     if (!q.value) { qCount.textContent = ""; return; }
     if (mi < 0) { qCount.textContent = "Sin resultados"; return; }
     const pos = matches[mi];
     const line = editor.value.slice(0, pos).split("\n").length;
     qCount.textContent = (mi + 1) + " de " + matches.length + " · línea " + line;
-    editor.setSelectionRange(pos, pos + q.value.length);
     editor.scrollTop = Math.max(0, (line - 1) * LINE_H - editor.clientHeight / 3);
-    editor.scrollLeft = 0;
+    // Desplazamiento horizontal: si la coincidencia queda fuera de la pantalla, se acerca.
+    const col = pos - (editor.value.lastIndexOf("\n", pos - 1) + 1);
+    const x = 12 + col * charW();
+    editor.scrollLeft = x > editor.clientWidth - 120 ? Math.max(0, x - editor.clientWidth / 4) : 0;
+    backdrop.scrollTop = editor.scrollTop; backdrop.scrollLeft = editor.scrollLeft;
   }
-  function step(dir) {
-    if (!matches.length) return;
-    mi = (mi + dir + matches.length) % matches.length;
-    showMatch();
-  }
+  function step(dir) { if (matches.length) { mi = (mi + dir + matches.length) % matches.length; showMatch(); } }
   q.addEventListener("input", runSearch);
-  q.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") { e.preventDefault(); step(e.shiftKey ? -1 : 1); }
-  });
+  q.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); step(e.shiftKey ? -1 : 1); } });
   $("qNext").addEventListener("click", () => step(1));
   $("qPrev").addEventListener("click", () => step(-1));
 
@@ -594,73 +900,50 @@
     const box = $("chips");
     box.replaceChildren();
     const D = state && state.Data;
-    if (!D) return;
+    if (!D || typeof D !== "object") return;
     box.append(h("span", {}, "Ir a:"));
     Object.keys(D).filter((k) => D[k] && typeof D[k] === "object").forEach((k) => {
-      box.append(h("button", { class: "chip", type: "button", onclick: () => {
-        q.value = '"' + k + '"'; runSearch();
-      } }, k.replace(/SaveData$/, "")));
+      box.append(h("button", { class: "chip", type: "button", onclick: () => { q.value = '"' + k + '"'; runSearch(); } }, k.replace(/SaveData$/, "")));
     });
   }
 
   editor.addEventListener("input", () => {
-    try {
-      state = JSON.parse(editor.value);
-      badJson = null;
-    } catch (e) {
-      badJson = e.message;
-    }
+    try { state = parseJSON(editor.value); badJson = null; }
+    catch (e) { badJson = e.message; }
     updateBar();
-    if (q.value) {
-      runSearch();
-    }
+    if (q.value) runSearch();
   });
 
-  $("pickBtn").addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); $("fileInput").click(); }
-  });
+  /* ---------- cargar archivo ---------- */
+  $("pickBtn").addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); $("fileInput").click(); } });
 
-  $("fileInput").addEventListener("change", () => {
+  $("fileInput").addEventListener("change", async () => {
     const file = $("fileInput").files && $("fileInput").files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onerror = () => alert("No se pudo leer el archivo.");
-    reader.onload = () => {
-      let text = String(reader.result);
-      if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
-      let data;
-      try { data = JSON.parse(text); }
-      catch (e) {
-        alert("Este archivo no es un JSON válido, así que no parece un guardado del juego.\n\n" + e.message);
-        return;
-      }
-      originalName = file.name;
-      originalRaw = text;
-      state = data;
-      baseline = JSON.stringify(state);
-      badJson = null;
-      q.value = "";
-
-      $("fileName").textContent = file.name;
-      const parts = [(file.size / 1024).toFixed(1) + " KB"];
-      if (data.Version !== undefined) parts.push("Versión " + data.Version);
-      if (typeof data.Checksum === "string") parts.push(data.Checksum === "" ? "Checksum vacío" : "Con checksum");
-      $("fileMeta").textContent = parts.join(" · ");
-
-      $("empty").hidden = true;
-      $("app").hidden = false;
-      $("bar").hidden = false;
-
-      const lead = data.Data && data.Data.RunMetaSaveData && data.Data.RunMetaSaveData.SelectedPartyFccIds;
-      if (lead && lead[0]) { $("brandIcon").replaceChildren(charSprite(lead[0], 32)); }
-
-      tab = "json";
-      setTab("sum");
-    };
-    reader.readAsText(file);
     $("fileInput").value = "";
+    if (!file) return;
+    await loadMain(file);
   });
 
+  async function loadMain(file) {
+    let text, root;
+    try { text = await readText(file); root = parseJSON(text); }
+    catch (e) { alert("No pude leer este archivo como un guardado (JSON válido).\n\n" + e.message); return false; }
+    if (!root || typeof root !== "object" || Array.isArray(root)) { alert("El archivo no tiene el formato de un guardado."); return false; }
+    originalName = file.name; originalRaw = text; state = root;
+    eol = text.includes("\r\n") ? "\r\n" : "\n";
+    baseline = ser(state); origSer = baseline; badJson = null; q.value = "";
+    csKind = checksumKind(state);
+    $("fileName").textContent = file.name;
+    fileKB = (file.size / 1024).toFixed(1);
+    setMeta();
+    const lead = state.Data && state.Data.RunMetaSaveData && state.Data.RunMetaSaveData.SelectedPartyFccIds;
+    if (lead && lead[0]) $("brandIcon").replaceChildren(charSprite(lead[0], 32));
+    tab = "sum";
+    setTab("sum");
+    return true;
+  }
+
+  /* ---------- descargas ---------- */
   function download(name, text) {
     const url = URL.createObjectURL(new Blob([text], { type: "application/octet-stream" }));
     const a = h("a", { href: url, download: name });
@@ -669,14 +952,26 @@
   }
 
   checksumBtn.addEventListener("click", () => {
-    if (badJson || !state || typeof state !== "object" || Array.isArray(state)) return;
-    // El juego acepta el campo Checksum vacío, igual que hace el script original.
-    state.Checksum = "";
-    const out = JSON.stringify(state);
-    download(originalName, out);
-    baseline = out;
-    if (tab === "json") editor.value = JSON.stringify(state, null, 2); else renderSummary();
-    updateBar("Checksum hecho · archivo descargado");
+    if (badJson || !state) return;
+    // Si el checksum del original no coincidía con el algoritmo conocido, se deja vacío (el juego lo acepta).
+    const real = csKind !== "mismatch" && state.Data && typeof state.Data === "object";
+    state.Checksum = real ? checksumOf(state.Data) : "";
+    download(originalName, ser(state).replace(/\n/g, eol));
+    baseline = ser(state);
+    csKind = real ? "valid" : "empty";
+    if (tab === "json") editor.value = baseline; else renderSummary();
+    setMeta();
+    updateBar(real ? "Checksum calculado · archivo descargado" : "Checksum vacío (el original no coincidía) · archivo descargado");
+  });
+
+  resetBtn.addEventListener("click", () => {
+    if (!originalRaw || !confirm("¿Volver a los valores del archivo que subiste? Se perderán los cambios que hayas hecho.")) return;
+    try { state = parseJSON(originalRaw); } catch (e) { return; }
+    baseline = ser(state); origSer = baseline; badJson = null;
+    csKind = checksumKind(state);
+    setMeta();
+    if (tab === "json") { editor.value = baseline; runSearch(); } else renderSummary();
+    updateBar("Restablecido al archivo original");
   });
 
   $("backupBtn").addEventListener("click", () => {
@@ -685,6 +980,174 @@
     const ext = dot > 0 ? originalName.slice(dot) : "";
     download(base + "_Backup_" + Date.now() + ext, originalRaw);
   });
+
+  /* ---------- comparar ---------- */
+  const cmp = { A: null, B: null, err: { A: "", B: "" } };
+  let metricFilter = "";
+
+  async function loadCmp(slot, file) {
+    try {
+      const text = await readText(file);
+      const root = parseJSON(text);
+      if (!root || !root.Data) throw new Error("No parece un guardado del juego.");
+      cmp[slot] = { name: file.name, size: file.size, root }; cmp.err[slot] = "";
+    } catch (e) { cmp[slot] = null; cmp.err[slot] = e.message; }
+    renderCompare();
+  }
+
+  const num = (v) => (v instanceof RawNum ? v.valueOf() : v);
+  const same = (a, b) => (a === undefined || b === undefined ? a === b : ser(a) === ser(b));
+  function fmtVal(k, v) {
+    if (k === "PlayTime") return fmtTime(v);
+    if (k === "SaveTimeStamp") return fmtDate(v);
+    if (k === "CurrentState") return stateTxt(v);
+    if (k === "SelectedDungeonID") return dungeonName(v);
+    return v instanceof RawNum ? v.raw : String(v);
+  }
+  const lab = (k) => LABELS[k] || k;
+
+  function diffRoots(A, B) {
+    const secs = [], seen = new Set();
+    const general = { title: "Datos generales", rows: [] };
+    const pushGen = (k, a, b) => {
+      const sig = k + "|" + ser(a) + "|" + ser(b);
+      if (seen.has(sig)) return; seen.add(sig);
+      let extra = "";
+      if (typeof num(a) === "number" && typeof num(b) === "number") { const d = num(b) - num(a); extra = " (" + (d > 0 ? "+" : "") + Number(d.toFixed(2)) + ")"; }
+      general.rows.push({ kind: "chg", text: lab(k), a: fmtVal(k, a), b: fmtVal(k, b) + extra });
+    };
+    const objs = (da, db) => {
+      for (const k of new Set([...Object.keys(da || {}), ...Object.keys(db || {})])) {
+        const va = da && da[k], vb = db && db[k];
+        if (Array.isArray(va) || Array.isArray(vb)) {
+          const ra = va || [], rb = vb || [];
+          if (isKV(ra) || isKV(rb)) {
+            const ma = new Map(ra.map((e) => [e.Key, e.Value])), mb = new Map(rb.map((e) => [e.Key, e.Value]));
+            const rows = [];
+            for (const [key, v] of mb) {
+              if (!ma.has(key)) rows.push({ kind: "add", text: nice(key) + (v === true ? "" : " = " + ser(v).replace(/\s+/g, " ")) });
+              else if (!same(ma.get(key), v)) rows.push({ kind: "chg", text: nice(key), a: ser(ma.get(key)).replace(/\s+/g, " "), b: ser(v).replace(/\s+/g, " ") });
+            }
+            for (const key of ma.keys()) if (!mb.has(key)) rows.push({ kind: "del", text: nice(key) });
+            if (rows.length) secs.push({ title: lab(k), rows });
+          } else if ([...ra, ...rb].every((x) => typeof x === "string")) {
+            const sa = new Set(ra), sb = new Set(rb), rows = [];
+            for (const x of sb) if (!sa.has(x)) rows.push({ kind: "add", text: nice(x) });
+            for (const x of sa) if (!sb.has(x)) rows.push({ kind: "del", text: nice(x) });
+            if (!rows.length && ra.join() !== rb.join()) rows.push({ kind: "chg", text: "Orden", a: ra.map(nice).join(", "), b: rb.map(nice).join(", ") });
+            if (rows.length) secs.push({ title: lab(k), rows });
+          } else if (k === "SaveObjects" && ra.length !== rb.length) {
+            general.rows.push({ kind: "chg", text: "Objetos de partida en curso", a: String(ra.length), b: String(rb.length) });
+          }
+        } else if (va !== null && typeof va === "object") {
+          /* objetos anidados: se tratan aparte */
+        } else if (!same(va, vb) && (va === undefined || vb === undefined || typeof va !== "object")) {
+          if (va === undefined) general.rows.push({ kind: "add", text: lab(k) + " = " + fmtVal(k, vb) });
+          else if (vb === undefined) general.rows.push({ kind: "del", text: lab(k) });
+          else pushGen(k, va, vb);
+        }
+      }
+    };
+    const a = A.Data, b = B.Data;
+    objs(a, b);
+    for (const s of ["ProfileSaveData", "RunMetaSaveData", "ProgressionSaveData"]) objs(a[s], b[s]);
+    objs(a.GameSaveData, b.GameSaveData);
+    secs.unshift(general);
+
+    const metrics = [];
+    const ca = (a.MetricsSaveData && a.MetricsSaveData.collectionData) || [], cb = (b.MetricsSaveData && b.MetricsSaveData.collectionData) || [];
+    const ids = new Set([...ca.map((c) => c.collectionID), ...cb.map((c) => c.collectionID)]);
+    for (const id of [...ids].sort((x, y) => x - y)) {
+      const A1 = ca.find((c) => c.collectionID === id), B1 = cb.find((c) => c.collectionID === id);
+      const rows = [];
+      for (const t of ["doubleMetrics", "longMetrics"]) {
+        const ma = new Map(((A1 && A1.dictionarySaveData && A1.dictionarySaveData[t]) || []).map((e) => [e.ID, num(e.Value)]));
+        const mb = new Map(((B1 && B1.dictionarySaveData && B1.dictionarySaveData[t]) || []).map((e) => [e.ID, num(e.Value)]));
+        for (const key of new Set([...ma.keys(), ...mb.keys()])) {
+          const x = ma.get(key), y = mb.get(key);
+          if (x !== y) rows.push({ id: key, a: x, b: y, d: (y ?? 0) - (x ?? 0) });
+        }
+      }
+      rows.sort((p, r) => Math.abs(r.d) - Math.abs(p.d));
+      if (rows.length) metrics.push({ id, rows });
+    }
+    return { secs: secs.filter((s) => s.rows.length), metrics };
+  }
+
+  const fmtNum = (v) => (v === undefined ? "—" : (Number.isInteger(v) ? v.toLocaleString("es") : v.toLocaleString("es", { maximumFractionDigits: 2 })));
+
+  function metricTable(m) {
+    const f = metricFilter.toLowerCase();
+    const rows = m.rows.filter((r) => !f || r.id.toLowerCase().includes(f));
+    const shown = rows.slice(0, 150);
+    const tb = h("tbody", {}, shown.map((r) => h("tr", {},
+      h("td", {}, r.id), h("td", { class: "num" }, fmtNum(r.a)), h("td", { class: "num" }, fmtNum(r.b)),
+      h("td", { class: "num " + (r.d > 0 ? "d-add" : "d-del") }, (r.d > 0 ? "+" : "") + fmtNum(r.d)))));
+    return h("div", {},
+      h("div", { class: "scroll" }, h("table", { class: "mt" },
+        h("thead", {}, h("tr", {}, h("th", {}, "Métrica"), h("th", { class: "num" }, "A"), h("th", { class: "num" }, "B"), h("th", { class: "num" }, "Cambio"))), tb)),
+      rows.length > shown.length ? h("p", { class: "coinnote" }, "Mostrando " + shown.length + " de " + rows.length + ". Usa el filtro para ver el resto.") : null,
+      !rows.length ? h("p", { class: "none" }, "Nada coincide con el filtro.") : null);
+  }
+
+  function pickPanel(slot, title) {
+    const data = cmp[slot];
+    const input = h("input", { type: "file", "aria-label": "Archivo " + slot });
+    input.addEventListener("change", () => { const f = input.files && input.files[0]; if (f) loadCmp(slot, f); });
+    const P = data && data.root.Data && data.root.Data.ProfileSaveData;
+    const meta = data
+      ? [P && P.SaveTimeStamp ? fmtDate(P.SaveTimeStamp) : null, data.root.Data.saveSystemVersion ? "v" + data.root.Data.saveSystemVersion : null,
+        P && P.PlayTime ? fmtTime(P.PlayTime) : null, P && P.TotalCoins !== undefined ? P.TotalCoins + " monedas" : null].filter(Boolean).join(" · ")
+      : "";
+    return h("div", { class: "frame pick" }, h("h2", {}, title),
+      h("div", { class: "acts" },
+        h("label", { class: "btn small" }, data ? "Cambiar archivo" : "Elegir archivo", input),
+        state ? h("button", { class: "btn ghost small", type: "button", onclick: () => { cmp[slot] = { name: originalName, size: originalRaw.length, root: parseJSON(ser(state)) }; cmp.err[slot] = ""; renderCompare(); } }, "Usar el cargado") : null),
+      data ? h("div", { class: "name" }, data.name) : null,
+      data ? h("div", { class: "meta" }, meta) : null,
+      cmp.err[slot] ? h("div", { class: "meta bad" }, cmp.err[slot]) : null);
+  }
+
+  function renderCompare() {
+    const root = $("viewCmp");
+    root.replaceChildren();
+    root.append(h("p", { class: "cmpintro" }, "Elige dos guardados y verás qué cambió de uno a otro. Los archivos no se suben a ningún sitio."));
+    root.append(h("div", { class: "cmpgrid" }, pickPanel("A", "A · antes"), pickPanel("B", "B · después")));
+    if (!(cmp.A && cmp.B)) return;
+
+    const ta = cmp.A.root.Data.ProfileSaveData && cmp.A.root.Data.ProfileSaveData.SaveTimeStamp;
+    const tb = cmp.B.root.Data.ProfileSaveData && cmp.B.root.Data.ProfileSaveData.SaveTimeStamp;
+    const bar = h("div", { class: "cmpbar" },
+      h("button", { class: "btn ghost small", type: "button", onclick: () => { [cmp.A, cmp.B] = [cmp.B, cmp.A]; renderCompare(); } }, "Intercambiar A y B"));
+    if (ta && tb && new Date(ta) > new Date(tb)) bar.append(h("span", { class: "hint" }, "Ojo: A es más reciente que B según su fecha interna."));
+    root.append(bar);
+
+    let result;
+    try { result = diffRoots(cmp.A.root, cmp.B.root); }
+    catch (e) { root.append(h("p", { class: "none" }, "No pude comparar estos archivos: " + e.message)); return; }
+    const total = result.secs.reduce((n, s) => n + s.rows.length, 0) + result.metrics.reduce((n, m) => n + m.rows.length, 0);
+    if (!total) { root.append(h("p", { class: "none" }, "No hay diferencias entre los dos archivos.")); return; }
+
+    const diff = h("div", { class: "diff" });
+    for (const s of result.secs) {
+      diff.append(h("details", { class: "dsec", open: s.rows.length <= 14 }, h("summary", {}, s.title, h("span", { class: "n" }, s.rows.length + (s.rows.length === 1 ? " cambio" : " cambios"))),
+        h("div", { class: "dbody" }, s.rows.map((r) => h("div", { class: "dline d-" + r.kind },
+          r.kind === "add" ? "+ " + r.text : r.kind === "del" ? "− " + r.text : [r.text + ": ", h("span", { class: "arr" }, r.a + " → "), r.b])))));
+    }
+    if (result.metrics.length) {
+      const filter = h("input", { class: "search mfilter", type: "search", placeholder: "Filtrar métricas (por ejemplo: Ender, Gold, Card_A)", spellcheck: "false", value: metricFilter });
+      const holders = [];
+      filter.addEventListener("input", () => { metricFilter = filter.value; holders.forEach(([m, el]) => el.replaceChildren(metricTable(m))); });
+      diff.append(h("div", {}, filter));
+      for (const m of result.metrics) {
+        const el = h("div", { class: "dbody" }, metricTable(m));
+        holders.push([m, el]);
+        diff.append(h("details", { class: "dsec" }, h("summary", {}, "Métricas · colección " + m.id, h("span", { class: "n" }, m.rows.length + " cambian")), el));
+      }
+    }
+    root.append(diff);
+  }
+
 })();
 </script>
 </body>
