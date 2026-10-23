@@ -165,6 +165,41 @@
   }
   .pu { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 28px; }
 
+  details.fold.sec { padding: 0; }
+  details.fold > summary, details.sub > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 10px; min-height: var(--tap); padding: 6px 18px; -webkit-tap-highlight-color: transparent; }
+  details.fold > summary::-webkit-details-marker, details.sub > summary::-webkit-details-marker { display: none; }
+  details.fold > summary::before, details.sub > summary::before { content: "+"; color: var(--gold); font: 700 1.1rem var(--pix); width: 1.2ch; flex: none; }
+  details.fold[open] > summary::before, details.sub[open] > summary::before { content: "\2212"; }
+  details.fold > summary h2 { margin: 0; flex: 1; }
+  details.fold > summary:focus-visible, details.sub > summary:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+  .foldbody { padding: 2px 18px 18px; min-width: 0; }
+  .foldtools { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; margin: 0 0 14px; }
+  details.sub { background: var(--bg); box-shadow: 0 0 0 2px var(--line-soft); margin-top: 10px; }
+  details.sub > summary { padding: 4px 12px; font-family: var(--pix); font-weight: 700; }
+  details.sub > summary .n { margin-left: auto; color: var(--muted); font: 500 .82rem var(--body); }
+  .subbody { padding: 4px 12px 12px; }
+  .subtools { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 8px; }
+  .achgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); column-gap: 24px; }
+  .achgrid .row { min-height: 40px; }
+  .badge { font: 500 .7rem var(--body); color: #2a1d05; background: var(--gold); padding: 1px 6px; margin-left: 6px; white-space: nowrap; }
+  .achbar { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; margin-bottom: 10px; }
+  .achbar .search { flex: 1 1 200px; }
+  .achbar label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: .9rem; }
+  .addrow { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .addrow .search { flex: 1 1 220px; }
+  .linkopt { display: flex; align-items: center; gap: 10px; margin: 12px 0 0; font-size: .88rem; color: var(--muted); cursor: pointer; }
+
+  .cg { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px; background: rgba(10, 8, 20, .82); }
+  .cg canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .cg-box { position: relative; width: min(420px, 100%); max-height: 100%; overflow: auto; padding: 22px 20px 26px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .cg-box h2 { font: 700 2.4rem var(--pix); margin: 0; color: var(--gold); letter-spacing: .08em; text-shadow: 0 3px 0 var(--gold-dark), 0 0 18px rgba(242, 193, 78, .55); animation: cgpulse 1.4s ease-in-out infinite; }
+  .cg-box p { margin: 0; color: var(--muted); font-size: .95rem; }
+  .cg-gif { width: 100%; min-height: 120px; }
+  .cg-gif { color: var(--muted); font-size: .8rem; }
+  .cg-gif a { color: var(--gold); }
+  .cg-x { min-width: var(--tap); font-size: 1.2rem; }
+  @keyframes cgpulse { 50% { transform: scale(1.06); } }
+  @media (prefers-reduced-motion: reduce) { .cg-box h2 { animation: none; } }
   .dtable { margin-top: 10px; }
   .drow { display: grid; grid-template-columns: minmax(0, 1fr) 76px 96px; align-items: center; gap: 8px; padding: 4px 0; min-height: 40px; border-bottom: 1px solid var(--line-soft); }
   .drow:last-child { border-bottom: 0; }
@@ -328,6 +363,19 @@
   </div>
 </div>
 
+
+<div class="cg" id="cg" role="dialog" aria-modal="true" aria-labelledby="cgTitle" hidden>
+  <canvas id="cgFx" aria-hidden="true"></canvas>
+  <div class="frame cg-box">
+    <h2 id="cgTitle">CONGRATS</h2>
+    <p>¡Tu guardado está completo! Todos los logros y personajes.</p>
+    <div class="cg-gif" id="cgGif">
+      <div class="tenor-gif-embed" data-postid="14051288149864767921" data-share-method="host" data-aspect-ratio="1" data-width="100%"><a href="https://tenor.com/view/party-confetti-congrats-congratulations-woohoo-gif-14051288149864767921">Party Confetti Sticker</a>from <a href="https://tenor.com/search/party-stickers">Party Stickers</a></div>
+    </div>
+    <button class="btn cg-x" id="cgClose" type="button" aria-label="Cerrar">✕</button>
+  </div>
+</div>
+
 <footer>Iconos: <a href="https://vampire.survivors.wiki/w/Crawlers:Wiki" target="_blank" rel="noopener">Vampire Survivors Wiki</a> (CC BY-NC-SA 3.0). Proyecto de fans, sin relación con poncle.</footer>
 
 <script>
@@ -479,7 +527,7 @@ function checksumOf(data) {
 
   // Personajes y mazmorras conocidos a partir de guardados reales (el juego puede tener más).
   const CHARACTERS = ["Antonio", "Imelda", "Pasqualina", "Gennaro", "Arca", "Porta", "Lama", "Poe", "Dommario", "Krochi",
-    "Christine", "Pugnala", "Poppea", "Concetta", "Cavallo", "OSole", "Mortaccio", "Ramba", "Clerici", "Giovanna", "Gallo"];
+    "Christine", "Pugnala", "Poppea", "Concetta", "Cavallo", "OSole", "Mortaccio", "Ramba", "Clerici", "Giovanna", "Gallo", "MissingNo", "Ambrojoe", "BigTroubler"];
   const ALIAS = { OSole: "O'Sole" };
   const DUNGEONS = [
     { id: "Madforest", ach: "MadForest", name: "Mad Forest", n: 3 },
@@ -657,6 +705,275 @@ function checksumOf(data) {
   $("tabJson").addEventListener("click", () => setTab("json"));
   $("tabCmp").addEventListener("click", () => setTab("cmp"));
 
+
+  /* ---------- carpetas plegables ---------- */
+  const openMap = new Map();
+  function fold(key, titleEl, kids, defOpen) {
+    const d = h("details", { class: "frame sec fold" }, h("summary", {}, titleEl), h("div", { class: "foldbody" }, kids));
+    d.open = openMap.has(key) ? openMap.get(key) : !!defOpen;
+    d.addEventListener("toggle", () => openMap.set(key, d.open));
+    return d;
+  }
+  const foldTitle = (txt, small) => h("h2", {}, txt, small ? h("small", {}, small) : null);
+
+  /* ---------- catalogo de logros ---------- */
+  const ACH_GROUPS = [
+    ["pers", "Personajes"], ["evo", "Evoluciones de armas"], ["gems", "Gemas"], ["relic", "Reliquias"],
+    ["dung", "Mazmorras, tiendas y jefes"], ["obj", "Cartas, objetos y eventos"], ["run", "Fin de partida (niveles)"], ["otros", "Otros"],
+  ];
+  // Logros que existen en el juego pero que no aparecen en tu guardado. Los nombres se deducen del patrón de los demás
+  // (Metric/EndRun + Character/Gems...) y no se pueden comprobar sin el juego: por eso van marcados como «estimado».
+  // Todos los logros conocidos, sacados de guardados reales (el juego marca 182 en pantalla; el archivo guarda más).
+  const ACH_KNOWN = [
+    "DungeonAchievement_Arcana_EbbAndCombo", "DungeonAchievement_Base_Game_Complete", "DungeonAchievement_Character_Gallo",
+    "DungeonAchievement_Character_Pasqualina", "DungeonAchievement_FirstTime_MF1_F1", "DungeonAchievement_FirstTime_MF1_F2",
+    "DungeonAchievement_FirstTime_Soda2", "DungeonAchievement_GalloBelowUnlock", "DungeonAchievement_Gems_01_CompMF1F1",
+    "DungeonAchievement_Gems_02_CompIL1", "DungeonAchievement_Gems_03_GalloTower", "DungeonAchievement_Gems_Afterlife",
+    "DungeonAchievement_Gems_CompleteDP3", "DungeonAchievement_Gems_CompleteIL3", "DungeonAchievement_Gems_CompleteMF3",
+    "DungeonAchievement_Gems_Mild", "DungeonAchievement_Gems_Scavenge", "DungeonAchievement_Gems_Switch", "DungeonAchievement_Inn",
+    "DungeonAchievement_KaromasMana", "DungeonAchievement_MoonGolow_1_Unlock", "DungeonAchievement_MoonGolow_2_Unlock",
+    "DungeonAchievement_Unlock_CappellaMagna_01", "DungeonAchievement_Unlock_CappellaMagna_02", "DungeonAchievement_Unlock_DairyPlant_01",
+    "DungeonAchievement_Unlock_DairyPlant_02", "DungeonAchievement_Unlock_DairyPlant_03", "DungeonAchievement_Unlock_GalloTower_01",
+    "DungeonAchievement_Unlock_InlaidLibrary_01", "DungeonAchievement_Unlock_InlaidLibrary_02", "DungeonAchievement_Unlock_InlaidLibrary_03",
+    "DungeonAchievement_Unlock_MadForest_01", "DungeonAchievement_Unlock_MadForest_02", "DungeonAchievement_Unlock_MadForest_03",
+    "DungeonAchievement_Unlock_ShopTier2", "DungeonAchievement_Unlock_ShopTier3", "DungeonAchievement_Unlock_TinyBridge_01",
+    "DungeonAchievement_Unlock_TinyBridge_02", "DungeonAchievement_Unlock_TinyBridge_03", "EndRunAchievement_Arcana_CrawlerBrawler",
+    "EndRunAchievement_Bone", "EndRunAchievement_CelestialDusting", "EndRunAchievement_Character_Lama", "EndRunAchievement_CherryBomb",
+    "EndRunAchievement_EightTheSparrow", "EndRunAchievement_GattiAmari", "EndRunAchievement_LaRobba", "EndRunAchievement_PhieraDerTuphello",
+    "EndRunAchievement_Pummarola", "EndRunAchievement_Runetracer", "EndRunAchievement_ShadowPinion", "EndRunAchievement_SkullOManic",
+    "EndRunAchievement_SongOfMana", "EndRunAchievement_Tirajisu", "EndRunAchievement_UnearthlyBolt", "MetricAchievement_Ambrojoe",
+    "MetricAchievement_AndAnother", "MetricAchievement_Arcana_ChairGame", "MetricAchievement_Arcana_InfiniteCombo", "MetricAchievement_Armor_01",
+    "MetricAchievement_Armor_02", "MetricAchievement_AttractionOrb", "MetricAchievement_Boost", "MetricAchievement_Bracer",
+    "MetricAchievement_Candelabrador", "MetricAchievement_Candelabrador_01", "MetricAchievement_Candelabrador_02", "MetricAchievement_Carrello",
+    "MetricAchievement_ChainLink", "MetricAchievement_Character_Arca", "MetricAchievement_Character_Cavallo",
+    "MetricAchievement_Character_Christine", "MetricAchievement_Character_Clerici", "MetricAchievement_Character_Dommario",
+    "MetricAchievement_Character_Gennaro", "MetricAchievement_Character_Krochi", "MetricAchievement_Character_Mortuccio",
+    "MetricAchievement_Character_OSole", "MetricAchievement_Character_Poe", "MetricAchievement_Character_Porta", "MetricAchievement_Character_Ramba",
+    "MetricAchievement_ChickenShop", "MetricAchievement_ClockLancet", "MetricAchievement_Clover", "MetricAchievement_CloverPettle",
+    "MetricAchievement_CoinPurse", "MetricAchievement_Cross", "MetricAchievement_Crown", "MetricAchievement_Duplicator",
+    "MetricAchievement_EbonyWing", "MetricAchievement_EmptyTome", "MetricAchievement_EmptyTome_01", "MetricAchievement_EmptyTome_02",
+    "MetricAchievement_EmptyTome_03", "MetricAchievement_EnderUnlocked_DeathParade", "MetricAchievement_Event_DuplicationTableEvent",
+    "MetricAchievement_Event_GFH", "MetricAchievement_Event_ManaOfferingTable", "MetricAchievement_Evo_BloodyTear",
+    "MetricAchievement_Evo_DeathSpiral", "MetricAchievement_Evo_GorgeousMoon", "MetricAchievement_Evo_HeavenSword", "MetricAchievement_Evo_HellFire",
+    "MetricAchievement_Evo_HolyWand", "MetricAchievement_Evo_LaBorra", "MetricAchievement_Evo_Mannajja", "MetricAchievement_Evo_NoFuture",
+    "MetricAchievement_Evo_Phierragi", "MetricAchievement_Evo_SoulEater", "MetricAchievement_Evo_SpiritDisturbance",
+    "MetricAchievement_Evo_ThousandEdge", "MetricAchievement_Evo_Thunderloop", "MetricAchievement_Evo_UnholyVespers",
+    "MetricAchievement_Evo_ValkyrieTurner", "MetricAchievement_Evo_Vandalier", "MetricAchievement_Evo_ViciousHunger", "MetricAchievement_FireWand",
+    "MetricAchievement_Garlic", "MetricAchievement_Gems_Adaptability", "MetricAchievement_Gems_Arcane", "MetricAchievement_Gems_Armor",
+    "MetricAchievement_Gems_Blue", "MetricAchievement_Gems_Bombard", "MetricAchievement_Gems_Calcium", "MetricAchievement_Gems_Charge",
+    "MetricAchievement_Gems_Clone", "MetricAchievement_Gems_Demi", "MetricAchievement_Gems_Destroy", "MetricAchievement_Gems_Discharge",
+    "MetricAchievement_Gems_Drain", "MetricAchievement_Gems_Draw", "MetricAchievement_Gems_Duration", "MetricAchievement_Gems_Echo",
+    "MetricAchievement_Gems_Free", "MetricAchievement_Gems_Hail", "MetricAchievement_Gems_Heal", "MetricAchievement_Gems_Jingle",
+    "MetricAchievement_Gems_Leader", "MetricAchievement_Gems_Luck", "MetricAchievement_Gems_MagicHat", "MetricAchievement_Gems_Magnet",
+    "MetricAchievement_Gems_ManaPlusMinus", "MetricAchievement_Gems_ManaPlusMinus2", "MetricAchievement_Gems_Midas", "MetricAchievement_Gems_Purple",
+    "MetricAchievement_Gems_Rainbow", "MetricAchievement_Gems_Rally", "MetricAchievement_Gems_Red", "MetricAchievement_Gems_Refresh",
+    "MetricAchievement_Gems_Remote", "MetricAchievement_Gems_Retain", "MetricAchievement_Gems_Return", "MetricAchievement_Gems_Reverse",
+    "MetricAchievement_Gems_Slayer", "MetricAchievement_Gems_Spike", "MetricAchievement_Gems_Sprightly", "MetricAchievement_Gems_Steal",
+    "MetricAchievement_Gems_Swift", "MetricAchievement_Gems_Thief", "MetricAchievement_Gems_TripleDamage", "MetricAchievement_Gems_Uncrackable",
+    "MetricAchievement_Gems_Wild", "MetricAchievement_Gems_XCost", "MetricAchievement_Gems_Yellow", "MetricAchievement_HollowHeart",
+    "MetricAchievement_JestersHat", "MetricAchievement_LargeCoinBag", "MetricAchievement_LightningRing", "MetricAchievement_MakeASceme",
+    "MetricAchievement_ManaSlab", "MetricAchievement_ManaSython", "MetricAchievement_MantishAmbushEncountered", "MetricAchievement_Orologion",
+    "MetricAchievement_OverTheTop", "MetricAchievement_Peachone", "MetricAchievement_Pentagram", "MetricAchievement_Plunder",
+    "MetricAchievement_PowerUpShop", "MetricAchievement_Pummarola_02", "MetricAchievement_RelicMuseum", "MetricAchievement_Rosary",
+    "MetricAchievement_SharpMind", "MetricAchievement_Spellbinder", "MetricAchievement_Spinach_01", "MetricAchievement_Spinach_02",
+    "MetricAchievement_StoneMask", "MetricAchievement_SwollenFist", "MetricAchievement_TricksterUnlocked_DeathParade", "MetricAchievement_Vacuum",
+    "MetricAchievement_WildAttack", "MetricAchievement_WildCombo", "MetricAchievement_WildDefence", "MetricAchievement_WildStrength",
+    "MetricAchievement_Wings", "MetricAchievement_YourShieldMyLiege", "Multi-Achievement_Unlock_TinyBridge", "PowerUpAchievement_RerollDrop",
+    "SimpleAchievement_Character_Antonio", "SimpleAchievement_Character_BigTroubler", "SimpleAchievement_Character_Concetta",
+    "SimpleAchievement_Character_Giovanna", "SimpleAchievement_Character_MissingNo", "SimpleAchievement_Character_Poppea",
+    "SimpleAchievement_Character_Pugnala", "SimpleAchievement_Relic_Blacksmith", "SimpleAchievement_Relic_BombaInfernale",
+    "SimpleAchievement_Relic_GalileosHand", "SimpleAchievement_Relic_GemHammer", "SimpleAchievement_Relic_GrimGrimoire",
+    "SimpleAchievement_Relic_GuidingLight", "SimpleAchievement_Relic_Jeweller", "SimpleAchievement_Relic_Ovenkilt",
+    "SimpleAchievement_Relic_Overkill", "SimpleAchievement_Relic_PancakeOfPower", "SimpleAchievement_Relic_Polentir",
+    "SimpleAchievement_Relic_Randomazzo", "SimpleAchievement_Relic_SeventhTrumpet", "SimpleAchievement_Relic_SorcerersTears",
+    "SimpleAchievement_Relic_Tappo", "SimpleAchievement_Relic_UltimateOverkill",
+  ];
+  const CHAR_ACH_GUESS = { Mortaccio: "MetricAchievement_Character_Mortuccio", Porta: "MetricAchievement_Character_Porta", MissingNo: "SimpleAchievement_Character_MissingNo" };
+  // Claves que no estaban en el archivo cargado: si se desmarcan, se quitan en vez de quedar en «false».
+  let loadedAch = new Set();
+  const captureAch = () => {
+    const l = state && state.Data && state.Data.ProgressionSaveData && state.Data.ProgressionSaveData.AchievementsUnlocked;
+    loadedAch = new Set(Array.isArray(l) ? l.map((e) => e.Key) : []);
+  };
+  const isExtra = (k) => !loadedAch.has(k);
+
+  function achGroup(k) {
+    if (/Character_/.test(k) || k === "MetricAchievement_Ambrojoe") return "pers";
+    if (/_Evo_/.test(k)) return "evo";
+    if (/Gems_/.test(k)) return "gems";
+    if (/^SimpleAchievement_Relic_/.test(k)) return "relic";
+    if (/^(DungeonAchievement|Multi-Achievement)/.test(k)) return "dung";
+    if (/^EndRunAchievement/.test(k)) return "run";
+    if (/^(MetricAchievement|PowerUpAchievement)_/.test(k)) return "obj";
+    return "otros";
+  }
+  function achName(k) {
+    return k.replace(/^(Simple|Metric|Dungeon|EndRun|PowerUp)Achievement_|^Multi-Achievement_/, "")
+      .replace(/^Character_/, "Personaje ").replace(/^Relic_/, "").replace(/^Evo_/, "Evo ").replace(/^Gems_/, "Gema ")
+      .replace(/_/g, " ").replace(/([a-z])([A-Z])/g, "$1 $2");
+  }
+  function charAchKey(list, id) {
+    const n = String(id).replace(/^FCC_/, "");
+    const hit = list.find((e) => e.Key.endsWith("Character_" + n) || e.Key === "MetricAchievement_" + n);
+    return hit ? hit.Key : (CHAR_ACH_GUESS[n] || null);
+  }
+  const linkAch = { on: true };
+
+  function achievementsSection(G) {
+    const list = ensureList(G, "AchievementsUnlocked");
+    const keysNow = () => {
+      const ks = list.map((e) => e.Key);
+      ACH_KNOWN.forEach((k) => { if (!ks.includes(k)) ks.push(k); });
+      return ks;
+    };
+    const groups = new Map(ACH_GROUPS.map(([id, name]) => [id, { id, name, rows: [] }]));
+    const all = [];
+    const title = foldTitle("Logros");
+    const body = [];
+
+    const q = h("input", { class: "search", type: "search", placeholder: "Buscar logro", autocomplete: "off", spellcheck: "false", "aria-label": "Buscar logro" });
+    const onlyMissing = h("input", { type: "checkbox", id: "achMissing" });
+    const bar = h("div", { class: "achbar" }, q,
+      h("label", { for: "achMissing" }, onlyMissing, "Solo los que me faltan"));
+    const tools = h("div", { class: "subtools" });
+    const bAll = h("button", { class: "btn small", type: "button" }, "Activar todos los faltantes");
+    const bOff = h("button", { class: "btn ghost small", type: "button" }, "Quitar los que no estaban");
+    tools.append(bAll, bOff);
+
+    function refresh() {
+      const on = all.filter((r) => getFlag(list, r.key)).length;
+      title.replaceChildren("Logros", h("small", {}, on + " activos de " + all.length + " conocidos"));
+      for (const g of groups.values()) {
+        if (!g.count) continue;
+        const gOn = g.rows.filter((r) => getFlag(list, r.key)).length;
+        g.count.textContent = gOn + " / " + g.rows.length;
+      }
+    }
+    function applyFilter() {
+      const t = q.value.trim().toLowerCase(), miss = onlyMissing.checked;
+      for (const g of groups.values()) {
+        if (!g.det) continue;
+        let vis = 0;
+        g.rows.forEach((r) => {
+          const ok = (!t || r.key.toLowerCase().includes(t) || r.label.toLowerCase().includes(t)) && (!miss || !getFlag(list, r.key));
+          r.el.hidden = !ok; if (ok) vis++;
+        });
+        g.det.hidden = vis === 0;
+        if (t && vis) g.det.open = true;
+      }
+    }
+    function setKey(k, on) {
+      setFlag(list, k, on, isExtra(k));
+      const r = all.find((x) => x.key === k);
+      if (r) r.cb.checked = on;
+    }
+
+    keysNow().forEach((key) => {
+      const gid = achGroup(key), g = groups.get(gid);
+      const id = "t" + Math.random().toString(36).slice(2, 9);
+      const cb = h("input", { type: "checkbox", id });
+      cb.checked = getFlag(list, key);
+      const label = achName(key);
+      const el = h("div", { class: "row", title: key }, h("label", { for: id }, label, isExtra(key) ? h("span", { class: "badge" }, "no estaba en tu save") : null), cb);
+      cb.addEventListener("change", () => { setKey(key, cb.checked); refresh(); applyFilter(); updateBar(); });
+      const row = { key, label, el, cb };
+      g.rows.push(row); all.push(row);
+    });
+
+    for (const g of groups.values()) {
+      if (!g.rows.length) continue;
+      g.count = h("span", { class: "n" });
+      const on = h("button", { class: "btn ghost small", type: "button" }, "Activar todos");
+      on.addEventListener("click", () => { g.rows.forEach((r) => setKey(r.key, true)); refresh(); applyFilter(); updateBar(); });
+      g.det = h("details", { class: "sub" }, h("summary", {}, g.name, g.count),
+        h("div", { class: "subbody" }, h("div", { class: "subtools" }, on), h("div", { class: "achgrid" }, g.rows.map((r) => r.el))));
+      g.det.open = openMap.has("ach-" + g.id) ? openMap.get("ach-" + g.id) : false;
+      g.det.addEventListener("toggle", () => openMap.set("ach-" + g.id, g.det.open));
+      body.push(g.det);
+    }
+
+    bAll.addEventListener("click", () => { all.forEach((r) => setKey(r.key, true)); refresh(); applyFilter(); updateBar(); });
+    bOff.addEventListener("click", () => {
+      all.filter((r) => isExtra(r.key)).forEach((r) => setKey(r.key, false)); refresh(); applyFilter(); updateBar();
+    });
+    q.addEventListener("input", applyFilter);
+    onlyMissing.addEventListener("change", applyFilter);
+
+    const custom = h("input", { class: "search", type: "text", placeholder: "ID de otro logro, p. ej. MetricAchievement_Character_Porta", autocomplete: "off", spellcheck: "false", "aria-label": "ID de logro" });
+    const add = h("button", { class: "btn small", type: "button" }, "Agregar por ID");
+    const doAdd = () => {
+      const k = custom.value.trim();
+      if (!/^[A-Za-z0-9_\-]+$/.test(k)) { custom.focus(); return; }
+      setFlag(list, k, true, false);
+      const y = window.scrollY;
+      openMap.set("ach-" + achGroup(k), true);
+      renderSummary(); updateBar(); window.scrollTo(0, y);
+    };
+    add.addEventListener("click", doAdd);
+    custom.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); doAdd(); } });
+
+    const note = h("p", { class: "coinnote" },
+      "Todos los IDs de esta lista salen de guardados reales. «No estaba en tu save» marca los que el editor agrega al activarlos. Si escribes un ID que no existe, el juego lo ignora. Prueba siempre en una copia.");
+    const det = fold("ach", title, [bar, tools, ...body, h("div", { class: "addrow" }, custom, add), note], false);
+    refresh();
+    return det;
+  }
+
+
+  /* ---------- contadores de por vida (colección 0) ---------- */
+  const COUNTER_PRESETS = [
+    ["CardType_Mana_Played", "Cartas de maná (moradas) jugadas", 3000, "MetricAchievement_Gems_XCost"],
+    ["SwitchEffectPlayed", "Cartas intercambiadas (Switch)", 50, "MetricAchievement_Arcana_ChairGame"],
+    ["CardType_Attack_Played", "Cartas de ataque jugadas", null],
+    ["CardType_Defense_Played", "Cartas de defensa jugadas", null],
+    ["CardType_Special_Played", "Cartas especiales jugadas", null],
+    ["CardType_Character_Played", "Cartas de personaje jugadas", null],
+    ["CardType_Void_Played", "Cartas de vacío jugadas", null],
+    ["CardType_Debuff_Played", "Cartas de debuff jugadas", null],
+  ];
+  function countersSection(D, G) {
+    const cols = D.MetricsSaveData && D.MetricsSaveData.collectionData;
+    const c0 = Array.isArray(cols) && cols.find((c) => c.collectionID === 0);
+    const list = c0 && c0.dictionarySaveData && c0.dictionarySaveData.longMetrics;
+    if (!Array.isArray(list)) return null;
+    const box = h("div", { class: "rows" });
+    const mkRow = (id, label, goal, achKey) => {
+      const e = list.find((x) => x.ID === id);
+      if (!e) return null;
+      const f = numField("lvl", Number(e.Value), 2147483647, label, (v) => { e.Value = v; updateBar(); });
+      f.style.width = "10ch";
+      const ctrl = h("div", { class: "ctrl" }, f);
+      if (goal) {
+        const b = h("button", { class: "btn ghost small", type: "button", title: "Deja el contador a 1 de la meta; después haz esa acción una vez en el juego" }, "Meta −1 (" + (goal - 1) + ")");
+        b.addEventListener("click", () => { e.Value = goal - 1; f.value = String(goal - 1); f.dispatchEvent(new Event("blur")); updateBar(); });
+        ctrl.prepend(b);
+        if (achKey && G) {
+          const full = h("button", { class: "btn small", type: "button", title: "Pone el contador en la meta y marca el logro " + achKey }, "Completar");
+          full.addEventListener("click", () => {
+            e.Value = goal; f.value = String(goal); f.dispatchEvent(new Event("blur"));
+            setFlag(ensureList(G, "AchievementsUnlocked"), achKey, true, false); updateBar();
+          });
+          ctrl.prepend(full);
+        }
+      }
+      return h("div", { class: "row", title: id }, h("span", { class: "lbl" }, label + (goal ? " · meta " + goal : "")), ctrl);
+    };
+    COUNTER_PRESETS.forEach(([id, label, goal, ak]) => { const r = mkRow(id, label, goal, ak); if (r) box.append(r); });
+    const idIn = h("input", { class: "search", type: "text", placeholder: "Otro contador por ID, p. ej. EnemiesKilled", autocomplete: "off", spellcheck: "false", "aria-label": "ID de contador" });
+    const addB = h("button", { class: "btn small", type: "button" }, "Mostrar");
+    const go = () => {
+      const id = idIn.value.trim();
+      if (!id || box.querySelector('[title="' + id.replace(/"/g, "") + '"]')) return;
+      const r = mkRow(id, id, null);
+      if (r) { box.append(r); idIn.value = ""; } else idIn.setCustomValidity("No existe");
+    };
+    addB.addEventListener("click", go);
+    idIn.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); go(); } });
+    const note = h("p", { class: "coinnote" },
+      "Son los contadores de por vida (los que muestran «1403 / 3000» en la pantalla de logros). «Completar» pone el contador en la meta y marca el logro; «Meta −1» lo deja a un paso para que lo cierre el propio juego al jugar esa carta. Prueba en una copia.");
+    return fold("counters", foldTitle("Contadores de logros"), [box, h("div", { class: "addrow" }, idIn, addB), note], false);
+  }
+
   /* ---------- resumen ---------- */
   function toggleRow(label, obj, key) {
     const id = "t" + Math.random().toString(36).slice(2, 9);
@@ -688,6 +1005,10 @@ function checksumOf(data) {
         "Este guardado es de una partida en curso (estado 3). Para editar con más seguridad usa uno tomado desde el menú principal (estado 2), y prueba siempre en una copia."));
     }
     const left = h("div", { class: "col" }), right = h("div", { class: "col" });
+    const setAll = (v) => root.querySelectorAll("details.fold, details.sub").forEach((d) => { d.open = v; });
+    root.append(h("div", { class: "foldtools" },
+      h("button", { class: "btn ghost small", type: "button", onclick: () => setAll(true) }, "Expandir todo"),
+      h("button", { class: "btn ghost small", type: "button", onclick: () => setAll(false) }, "Colapsar todo")));
 
     /* monedas: existen en dos secciones y el juego usa la de progresión */
     if (P || G) {
@@ -705,18 +1026,16 @@ function checksumOf(data) {
         refreshNote(); updateBar();
       });
       refreshNote();
-      left.append(h("section", { class: "frame sec" }, h("h2", {}, "Monedas"),
-        h("div", { class: "coinrow" }, coinIcon(40), input), note));
+      left.append(fold("coins", foldTitle("Monedas"), [h("div", { class: "coinrow" }, coinIcon(40), input), note], true));
     }
 
     /* personajes */
     const party = (R && Array.isArray(R.SelectedPartyFccIds)) ? R.SelectedPartyFccIds : [];
-    const sec = h("section", { class: "frame sec" });
+    const secBody = [];
     const secTitle = h("h2", {});
-    sec.append(secTitle);
     if (party.length) {
-      sec.append(h("div", { class: "sub" }, "Grupo actual"));
-      sec.append(h("div", { class: "party" }, party.map((id, i) =>
+      secBody.push(h("div", { class: "sub" }, "Grupo actual"));
+      secBody.push(h("div", { class: "party" }, party.map((id, i) =>
         h("div", { class: "who" + (i === 0 ? " lead" : "") }, charSprite(id, 48), h("span", {}, charName(id))))));
     }
     if (G) {
@@ -728,20 +1047,30 @@ function checksumOf(data) {
         secTitle.replaceChildren("Personajes", h("small", {}, n + " de " + ids.length));
       };
       updateTitle();
-      sec.append(h("div", { class: "sub" }, "Toca un personaje para comprarlo o quitarlo"));
-      sec.append(h("div", { class: "roster" }, ids.map((id) => {
+      secBody.push(h("div", { class: "sub" }, "Toca un personaje para comprarlo o quitarlo"));
+      secBody.push(h("div", { class: "roster" }, ids.map((id) => {
         const tile = h("button", { class: "tile", type: "button", title: id, "aria-pressed": String(getFlag(owned, id)) },
           charSprite(id, 40), h("span", {}, charName(id)));
         tile.addEventListener("click", () => {
           const on = tile.getAttribute("aria-pressed") !== "true";
           setFlag(owned, id, on, true);
+          if (on && linkAch.on) {
+            const ak = charAchKey(ensureList(G, "AchievementsUnlocked"), id);
+            if (ak) setFlag(G.AchievementsUnlocked, ak, true, false);
+          }
           tile.setAttribute("aria-pressed", on);
           updateTitle(); updateBar();
         });
         return tile;
       })));
+      const lid = "t" + Math.random().toString(36).slice(2, 9);
+      const lcb = h("input", { type: "checkbox", id: lid });
+      lcb.checked = linkAch.on;
+      lcb.addEventListener("change", () => { linkAch.on = lcb.checked; });
+      secBody.push(h("label", { class: "linkopt", for: lid }, lcb,
+        "Al comprar un personaje, activar también su logro de desbloqueo (el juego suele exigirlo para mostrarlo en la taberna)"));
     } else secTitle.textContent = "Personajes";
-    left.append(sec);
+    left.append(fold("chars", secTitle, secBody, true));
 
     /* mazmorras */
     if (G) {
@@ -750,7 +1079,7 @@ function checksumOf(data) {
       const known = [];
       DUNGEONS.forEach((d) => { for (let i = 1; i <= d.n; i++) { const n = String(i).padStart(2, "0"); known.push({ id: "Dungeon_" + d.id + "_" + n, ach: "DungeonAchievement_Unlock_" + d.ach + "_" + n }); } });
       visited.forEach((e) => { if (!known.some((k) => k.id === e.Key)) known.push({ id: e.Key, ach: null }); });
-      const dsec = h("section", { class: "frame sec" }, h("h2", {}, "Mazmorras"));
+      const dsecBody = [];
       if (R && "SelectedDungeonID" in R) {
         const sel = h("select", { "aria-label": "Mazmorra seleccionada" });
         const opts = known.map((k) => k.id);
@@ -758,7 +1087,7 @@ function checksumOf(data) {
         opts.forEach((id) => sel.append(h("option", { value: id }, dungeonName(id))));
         sel.value = R.SelectedDungeonID;
         sel.addEventListener("change", () => { R.SelectedDungeonID = sel.value; updateBar(); });
-        dsec.append(h("div", { class: "sub" }, "Seleccionada"), sel);
+        dsecBody.push(h("div", { class: "sub" }, "Seleccionada"), sel);
       }
       const table = h("div", { class: "dtable" },
         h("div", { class: "drow head" }, h("span", {}, "Mazmorra"), h("span", { style: "text-align:center" }, "Visitada"), h("span", { style: "text-align:center" }, "Desbloqueo*")));
@@ -774,43 +1103,46 @@ function checksumOf(data) {
         }
         table.append(h("div", { class: "drow", title: k.id }, h("span", { class: "dn" }, dungeonName(k.id)), v, u));
       });
-      dsec.append(table, h("p", { class: "coinnote" }, "*Experimental: marca el logro «Unlock» de cada mazmorra, que parece abrirla. No está comprobado; prueba en una copia."));
-      left.append(dsec);
+      dsecBody.push(table, h("p", { class: "coinnote" }, "*Experimental: marca el logro «Unlock» de cada mazmorra, que parece abrirla. No está comprobado; prueba en una copia."));
+      left.append(fold("dungeons", foldTitle("Mazmorras"), dsecBody, false));
     }
 
     if (P) {
-      left.append(h("section", { class: "frame sec" }, h("h2", {}, "Partida"),
+      left.append(fold("game", foldTitle("Partida"), [
         h("div", { class: "rows" },
           P.PlayTime ? h("div", { class: "row" }, h("span", { class: "lbl" }, "Tiempo jugado"), h("span", { class: "val" }, fmtTime(P.PlayTime))) : null,
           P.SaveTimeStamp ? h("div", { class: "row" }, h("span", { class: "lbl" }, "Último guardado"), h("span", { class: "val" }, fmtDate(P.SaveTimeStamp))) : null,
           P.CurrentState !== undefined ? h("div", { class: "row" }, h("span", { class: "lbl" }, "Estado"), h("span", { class: "val" }, stateTxt(P.CurrentState))) : null,
-          D.saveSystemVersion ? h("div", { class: "row" }, h("span", { class: "lbl" }, "Versión del guardado"), h("span", { class: "val" }, D.saveSystemVersion)) : null)));
+          D.saveSystemVersion ? h("div", { class: "row" }, h("span", { class: "lbl" }, "Versión del guardado"), h("span", { class: "val" }, D.saveSystemVersion)) : null)], false));
     }
 
     /* modos, reliquias, progreso */
     const modes = [["EndlessModeActive", "Modo infinito"], ["HandSizeLimitActive", "Límite de tamaño de mano"], ["HurryModeActive", "Modo apresurado"], ["IsJewellerDisabled", "Joyero desactivado"]].filter(([k]) => R && k in R);
     const tuts = [["IsTutorialComplete", "Tutorial completado"], ["IsWildCardTutorialComplete", "Tutorial de comodines completado"]].filter(([k]) => G && k in G);
     if (modes.length || tuts.length) {
-      right.append(h("section", { class: "frame sec" }, h("h2", {}, "Modos y tutoriales"),
-        h("div", { class: "rows" }, modes.map(([k, l]) => toggleRow(l, R, k)), tuts.map(([k, l]) => toggleRow(l, G, k)))));
+      right.append(fold("modes", foldTitle("Modos y tutoriales"),
+        [h("div", { class: "rows" }, modes.map(([k, l]) => toggleRow(l, R, k)), tuts.map(([k, l]) => toggleRow(l, G, k)))], false));
     }
     const relics = (R && R.EnabledRelics) || [];
     if (relics.length) {
-      right.append(h("section", { class: "frame sec" }, h("h2", {}, "Reliquias"),
-        h("div", { class: "rows" }, relics.map((e) => kvToggleRow(nice(e.Key), e)))));
+      right.append(fold("relics", foldTitle("Reliquias", relics.filter((e) => e.Value).length + " de " + relics.length),
+        [h("div", { class: "rows" }, relics.map((e) => kvToggleRow(nice(e.Key), e)))], false));
     }
     if (G) {
       const n = (a) => Array.isArray(a) ? a.length : 0;
       const nt = (a) => Array.isArray(a) ? a.filter((e) => e.Value).length : 0;
-      right.append(h("section", { class: "frame sec" }, h("h2", {}, "Progreso"),
+      right.append(fold("progress", foldTitle("Progreso"), [
         h("div", { class: "rows" },
           countRow("Logros desbloqueados", nt(G.AchievementsUnlocked)),
           countRow("Cartas descubiertas", n(G.DiscoveredCards)),
           countRow("Edificios visitados", nt(G.BuildingsVisited)),
           countRow("Cartas con ranuras de gema", n(G.CardGemSlots)),
-          G.ChestsSpawned !== undefined ? countRow("Cofres aparecidos", String(G.ChestsSpawned)) : null)));
+          G.ChestsSpawned !== undefined ? countRow("Cofres aparecidos", String(G.ChestsSpawned)) : null)], false));
     }
     root.append(h("div", { class: "grid" }, left, right));
+    if (G) root.append(h("div", { style: "margin-top:22px" }, achievementsSection(G)));
+    const cs = countersSection(D, G);
+    if (cs) { cs.style.marginTop = "22px"; root.append(cs); }
 
     /* mejoras permanentes */
     const enabled = (G && G.PowerUpEnabled) || [], levels = (G && G.PowerUpLevelsUnlocked) || [];
@@ -833,8 +1165,10 @@ function checksumOf(data) {
         } else labelEl = h("span", { class: "lbl" }, nice(k));
         return h("div", { class: "row", title: k }, labelEl, ctrl);
       });
-      root.append(h("section", { class: "frame sec", style: "margin-top:22px" }, h("h2", {}, "Mejoras permanentes"),
-        h("div", { class: "sub" }, "Casilla: activada. Número: nivel desbloqueado."), h("div", { class: "rows pu" }, rows)));
+      const pu = fold("powerups", foldTitle("Mejoras permanentes", rows.length + ""),
+        [h("div", { class: "sub" }, "Casilla: activada. Número: nivel desbloqueado."), h("div", { class: "rows pu" }, rows)], false);
+      pu.style.marginTop = "22px";
+      root.append(pu);
     }
   }
 
@@ -914,6 +1248,79 @@ function checksumOf(data) {
     if (q.value) runSearch();
   });
 
+
+  /* ---------- felicitación cuando el guardado está completo ---------- */
+  function isComplete() {
+    const G = state && state.Data && state.Data.ProgressionSaveData;
+    if (!G || !Array.isArray(G.AchievementsUnlocked) || !Array.isArray(G.CharactersPurchased)) return false;
+    const ach = G.AchievementsUnlocked;
+    if (!ACH_KNOWN.every((k) => getFlag(ach, k))) return false;
+    const ids = CHARACTERS.map((n) => "FCC_" + n);
+    G.CharactersPurchased.forEach((e) => { if (!ids.includes(e.Key)) ids.push(e.Key); });
+    return ids.every((id) => getFlag(G.CharactersPurchased, id));
+  }
+
+  const cg = $("cg"), cgFx = $("cgFx"), cgClose = $("cgClose");
+  let cgRaf = 0, cgBack = null, cgTenor = false;
+  const reduceMotion = () => window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function fireworks(on) {
+    cancelAnimationFrame(cgRaf);
+    const ctx = cgFx.getContext("2d");
+    if (!on || reduceMotion()) { ctx.clearRect(0, 0, cgFx.width, cgFx.height); return; }
+    const dpr = window.devicePixelRatio || 1;
+    cgFx.width = cg.clientWidth * dpr; cgFx.height = cg.clientHeight * dpr;
+    const W = cgFx.width, H = cgFx.height;
+    const colors = ["#f2c14e", "#e0605a", "#6fd38f", "#efe9ff", "#8fb4ff", "#ff9bd2"];
+    let parts = [], next = 0;
+    const burst = () => {
+      const x = W * (0.15 + Math.random() * 0.7), y = H * (0.12 + Math.random() * 0.45);
+      const col = colors[(Math.random() * colors.length) | 0], n = 38 + ((Math.random() * 20) | 0);
+      for (let i = 0; i < n; i++) {
+        const a = (i / n) * Math.PI * 2, v = (1.6 + Math.random() * 2.6) * dpr;
+        parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 1, col, r: (1.4 + Math.random() * 1.4) * dpr });
+      }
+    };
+    const frame = (t) => {
+      if (t > next) { burst(); next = t + 500 + Math.random() * 600; }
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.fillStyle = "rgba(0,0,0,.22)"; ctx.fillRect(0, 0, W, H);
+      ctx.globalCompositeOperation = "lighter";
+      parts = parts.filter((p) => p.life > 0.02);
+      for (const p of parts) {
+        p.x += p.vx; p.y += p.vy; p.vy += 0.035 * dpr; p.vx *= 0.985; p.life *= 0.975;
+        ctx.globalAlpha = Math.min(1, p.life * 1.4); ctx.fillStyle = p.col;
+        ctx.fillRect(p.x, p.y, p.r, p.r);
+      }
+      ctx.globalAlpha = 1;
+      cgRaf = requestAnimationFrame(frame);
+    };
+    cgRaf = requestAnimationFrame(frame);
+  }
+
+  function showCongrats() {
+    if (!cg.hidden) return;
+    cgBack = document.activeElement;
+    cg.hidden = false;
+    fireworks(true);
+    if (!cgTenor) {
+      cgTenor = true;
+      const sc = document.createElement("script");
+      sc.async = true; sc.src = "https://tenor.com/embed.js";
+      document.body.append(sc);
+    }
+    cgClose.focus();
+  }
+  function hideCongrats() {
+    cg.hidden = true;
+    fireworks(false);
+    if (cgBack && cgBack.focus) cgBack.focus();
+  }
+  cgClose.addEventListener("click", hideCongrats);
+  cg.addEventListener("click", (e) => { if (e.target === cg || e.target === cgFx) hideCongrats(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !cg.hidden) hideCongrats(); });
+  window.addEventListener("resize", () => { if (!cg.hidden) fireworks(true); });
+
   /* ---------- cargar archivo ---------- */
   $("pickBtn").addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); $("fileInput").click(); } });
 
@@ -933,6 +1340,7 @@ function checksumOf(data) {
     eol = text.includes("\r\n") ? "\r\n" : "\n";
     baseline = ser(state); origSer = baseline; badJson = null; q.value = "";
     csKind = checksumKind(state);
+    captureAch();
     $("fileName").textContent = file.name;
     fileKB = (file.size / 1024).toFixed(1);
     setMeta();
@@ -940,6 +1348,7 @@ function checksumOf(data) {
     if (lead && lead[0]) $("brandIcon").replaceChildren(charSprite(lead[0], 32));
     tab = "sum";
     setTab("sum");
+    if (isComplete()) showCongrats();
     return true;
   }
 
@@ -962,6 +1371,7 @@ function checksumOf(data) {
     if (tab === "json") editor.value = baseline; else renderSummary();
     setMeta();
     updateBar(real ? "Checksum calculado · archivo descargado" : "Checksum vacío (el original no coincidía) · archivo descargado");
+    if (isComplete()) showCongrats();
   });
 
   resetBtn.addEventListener("click", () => {
@@ -969,6 +1379,7 @@ function checksumOf(data) {
     try { state = parseJSON(originalRaw); } catch (e) { return; }
     baseline = ser(state); origSer = baseline; badJson = null;
     csKind = checksumKind(state);
+    captureAch();
     setMeta();
     if (tab === "json") { editor.value = baseline; runSearch(); } else renderSummary();
     updateBar("Restablecido al archivo original");
