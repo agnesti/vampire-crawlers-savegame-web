@@ -200,6 +200,11 @@
   .cg-x { min-width: var(--tap); font-size: 1.2rem; }
   @keyframes cgpulse { 50% { transform: scale(1.06); } }
   @media (prefers-reduced-motion: reduce) { .cg-box h2 { animation: none; } }
+  .row.crow { flex-wrap: wrap; }
+  .crow .lbl { flex: 1 1 16ch; }
+  .crow .ctrl { flex-wrap: wrap; justify-content: flex-end; margin-left: auto; }
+  .ctrl .btn { white-space: nowrap; }
+  .who small { color: var(--muted); font-size: .72rem; }
   .dtable { margin-top: 10px; }
   .drow { display: grid; grid-template-columns: minmax(0, 1fr) 76px 96px; align-items: center; gap: 8px; padding: 4px 0; min-height: 40px; border-bottom: 1px solid var(--line-soft); }
   .drow:last-child { border-bottom: 0; }
@@ -291,6 +296,17 @@
     #pickBtn { font-size: .85rem; padding: 0 12px; }
     .drow { grid-template-columns: minmax(0, 1fr) 60px 76px; gap: 6px; }
     .brand h1 { font-size: 1.05rem; }
+  }
+  @media (max-width: 560px) {
+    .crow .lbl { flex-basis: 100%; }
+    .crow .ctrl { width: 100%; justify-content: stretch; }
+    .crow .ctrl .lvl { order: -1; flex: 1 1 100%; width: 100% !important; }
+    .crow .ctrl .btn { flex: 1 1 0; }
+    .achgrid { grid-template-columns: minmax(0, 1fr); }
+    .addrow .btn, .subtools .btn { flex: 1 1 auto; }
+  }
+  @media (max-width: 360px) {
+    .bar-in .btn { font-size: .76rem; padding: 0 4px; }
   }
   @media (max-width: 420px) {
     .brand small { display: none; }
@@ -529,6 +545,8 @@ function checksumOf(data) {
   const CHARACTERS = ["Antonio", "Imelda", "Pasqualina", "Gennaro", "Arca", "Porta", "Lama", "Poe", "Dommario", "Krochi",
     "Christine", "Pugnala", "Poppea", "Concetta", "Cavallo", "OSole", "Mortaccio", "Ramba", "Clerici", "Giovanna", "Gallo", "MissingNo", "Ambrojoe", "BigTroubler"];
   const ALIAS = { OSole: "O'Sole" };
+  // Nombres de archivo de la wiki que no coinciden con el ID del juego.
+  const SPRITE_FILE = { MissingNo: "MissingN0", BigTroubler: "Troubler" };
   const DUNGEONS = [
     { id: "Madforest", ach: "MadForest", name: "Mad Forest", n: 3 },
     { id: "InlaidLibrary", ach: "InlaidLibrary", name: "Inlaid Library", n: 3 },
@@ -585,7 +603,7 @@ function checksumOf(data) {
   }
   function charSprite(fcc, size) {
     let name = String(fcc).replace(/^FCC_/, "");
-    name = ALIAS[name] || name;
+    name = SPRITE_FILE[name] || ALIAS[name] || name;
     return sprite("CSprite-" + encodeURIComponent(name).replace(/'/g, "%27") + ".png", size, name);
   }
   function coinIcon(size) {
@@ -956,7 +974,7 @@ function checksumOf(data) {
           ctrl.prepend(full);
         }
       }
-      return h("div", { class: "row", title: id }, h("span", { class: "lbl" }, label + (goal ? " · meta " + goal : "")), ctrl);
+      return h("div", { class: "row crow", title: id }, h("span", { class: "lbl" }, label + (goal ? " · meta " + goal : "")), ctrl);
     };
     COUNTER_PRESETS.forEach(([id, label, goal, ak]) => { const r = mkRow(id, label, goal, ak); if (r) box.append(r); });
     const idIn = h("input", { class: "search", type: "text", placeholder: "Otro contador por ID, p. ej. EnemiesKilled", autocomplete: "off", spellcheck: "false", "aria-label": "ID de contador" });
@@ -1036,7 +1054,7 @@ function checksumOf(data) {
     if (party.length) {
       secBody.push(h("div", { class: "sub" }, "Grupo actual"));
       secBody.push(h("div", { class: "party" }, party.map((id, i) =>
-        h("div", { class: "who" + (i === 0 ? " lead" : "") }, charSprite(id, 48), h("span", {}, charName(id))))));
+        h("div", { class: "who" + (i === 0 ? " lead" : "") }, charSprite(id, 48), h("span", {}, charName(id)), i === 0 ? h("small", {}, "(líder)") : null))));
     }
     if (G) {
       const owned = ensureList(G, "CharactersPurchased");
@@ -1345,7 +1363,14 @@ function checksumOf(data) {
     fileKB = (file.size / 1024).toFixed(1);
     setMeta();
     const lead = state.Data && state.Data.RunMetaSaveData && state.Data.RunMetaSaveData.SelectedPartyFccIds;
-    if (lead && lead[0]) $("brandIcon").replaceChildren(charSprite(lead[0], 32));
+    if (lead && lead[0]) {
+      let n = String(lead[0]).replace(/^FCC_/, "");
+      n = SPRITE_FILE[n] || ALIAS[n] || n;
+      const img = h("img", { src: ICONS + "CSprite-" + encodeURIComponent(n).replace(/'/g, "%27") + ".png", width: 32, height: 32, alt: "", referrerpolicy: "no-referrer" });
+      img.style.imageRendering = "pixelated";
+      img.addEventListener("error", () => img.replaceWith(coinIcon(32)));
+      $("brandIcon").replaceChildren(img);
+    }
     tab = "sum";
     setTab("sum");
     if (isComplete()) showCongrats();
